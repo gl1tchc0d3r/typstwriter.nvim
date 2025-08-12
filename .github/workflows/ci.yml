@@ -18,10 +18,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup Neovim
-      uses: rhymond/setup-neovim@v1
-      with:
-        neovim-version: ${{ matrix.neovim-version }}
+    - name: Setup Neovim ${{ matrix.neovim-version }}
+      run: |
+        if [ "${{ matrix.neovim-version }}" = "stable" ]; then
+          curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+          tar -xzf nvim-linux-x86_64.tar.gz
+          sudo mv nvim-linux-x86_64 /opt/nvim
+        else
+          curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz
+          tar -xzf nvim-linux-x86_64.tar.gz
+          sudo mv nvim-linux-x86_64 /opt/nvim
+        fi
+        sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
+        nvim --version
     
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v10
@@ -44,7 +53,7 @@ jobs:
       run: make test-coverage
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./luacov.report.out
         flags: unittests
@@ -100,10 +109,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup Neovim
-      uses: rhymond/setup-neovim@v1
-      with:
-        neovim-version: 'stable'
+    - name: Setup Neovim (stable)
+      run: |
+        curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+        tar -xzf nvim-linux-x86_64.tar.gz
+        sudo mv nvim-linux-x86_64 /opt/nvim
+        sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
+        nvim --version
     
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v10
@@ -133,7 +145,7 @@ jobs:
       run: make ci
     
     - name: Upload coverage from CI pipeline
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./luacov.report.out
         flags: ci-pipeline
