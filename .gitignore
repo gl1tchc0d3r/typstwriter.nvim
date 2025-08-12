@@ -31,7 +31,6 @@ Thumbs.db
 
 # Plugin development
 /test/
-/spec/
 /coverage/
 
 # Local development configuration
