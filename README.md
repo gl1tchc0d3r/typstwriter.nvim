@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/gl1tchc0d3r/typstwriter.nvim/workflows/CI/badge.svg)](https://github.com/gl1tchc0d3r/typstwriter.nvim/actions)
 [![Tests](https://img.shields.io/github/actions/workflow/status/gl1tchc0d3r/typstwriter.nvim/ci.yml?branch=main&label=tests)](https://github.com/gl1tchc0d3r/typstwriter.nvim/actions)
-[![codecov](https://codecov.io/gh/gl1tchc0d3r/typstwriter.nvim/branch/main/graph/badge.svg)](https://codecov.io/gh/gl1tchc0d3r/typstwriter.nvim)
+[![codecov](https://codecov.io/github/gl1tchc0d3r/typstwriter.nvim/graph/badge.svg?token=J3ZM26AFGP)](https://codecov.io/github/gl1tchc0d3r/typstwriter.nvim)
 [![Neovim](https://img.shields.io/badge/Neovim-0.7+-green.svg)](https://neovim.io)
 [![Typst](https://img.shields.io/badge/Typst-compatible-blue.svg)](https://typst.app)
 
