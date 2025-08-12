@@ -29,9 +29,13 @@
 ehthumbs.db
 Thumbs.db
 
-# Plugin development
-/test/
+# Plugin development  
+# Note: /spec/ contains tests and should be tracked
 /coverage/
+
+# Coverage reports (generated during CI, should not be committed)
+luacov.report.out
+luacov.stats.out
 
 # Local development configuration
 /local/

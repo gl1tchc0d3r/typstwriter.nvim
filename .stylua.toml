@@ -1,10 +1,8 @@
-[settings]
+# StyLua configuration for typstwriter.nvim
+column_width = 120
+line_endings = "Unix"
 indent_type = "Spaces"
 indent_width = 2
-line_endings = "Unix"
 quote_style = "AutoPreferDouble"
 call_parentheses = "Always"
 collapse_simple_statement = "Never"
-
-[sort_requires]
-enabled = true
