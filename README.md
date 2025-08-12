@@ -10,30 +10,83 @@
 [![Neovim](https://img.shields.io/badge/Neovim-0.7+-green.svg)](https://neovim.io)
 [![Typst](https://img.shields.io/badge/Typst-compatible-blue.svg)](https://typst.app)
 
-## ✨ Current Features
+## Philosophy: Why This Plugin Exists
 
-### 🎯 Template System
+As one of the few "progressive conservatives" in computing, I've spent decades with vi, vim, and now Neovim in the terminal - this is how I've used computers since the early Unix days. While others chase shiny GUI applications wrapped in Electron, I remain committed to never leaving the terminal.
+
+### The Challenge
+
+Modern tools like **Obsidian**, **VS Code**, **Excel**, **PowerBI**, **DBeaver**, **AnyType** - they encapsulate powerful functionality behind frustrating mouse-driven interfaces. They assume you want to leave your keyboard-centric workflow for their "user-friendly" GUIs. I refuse.
+
+### The Markup Evolution
+
+**LaTeX** has been the gold standard for typesetting since the late 80s/early 90s - a rich, powerful tool in any academic's toolbox. With its vast ecosystem of plugins and adaptations, LaTeX's typesetting capabilities remain unmatched. But it's often frustrating and difficult to get right, with syntax that can become unreadable.
+
+**Markdown** evolved with the HTML/CSS mindset - thinking in terms of web presentation with confusing CSS iterations to make it presentable. It gained readability but was fundamentally designed for web rendering, not professional typesetting.
+
+**Typst** changed everything. It offers:
+- The simplicity of Vimwiki-like basic syntax
+- Typesetting power comparable to LaTeX on a bad day (but evolving rapidly)
+- Readable markup that doesn't sacrifice functionality
+- A modern approach designed for documents, not web pages
+
+When I discovered Typst, it struck a chord. What if I could replace my entire Markdown vault with YAML frontmatter notes using this superior tool? The typesetting may not match LaTeX's full power yet, but it's more than sufficient for my needs and improving constantly. And so this plugin was born.
+
+### What to Expect
+
+✅ **A complete terminal-native writing system** - No GUI dependencies, ever  
+✅ **Professional document output** - High-quality PDFs from readable markup  
+✅ **Keyboard-driven workflow** - Everything accessible via keybindings and commands  
+✅ **Progressive enhancement** - Starting with templates, evolving toward AI-assisted knowledge management  
+✅ **Privacy-first approach** - Local processing, your data stays with you  
+✅ **Beautiful typography** - Professional fonts and consistent styling out of the box  
+✅ **Hackability above all** - Built to work exactly how you want it. As a progressive conservative, my preferences might change overnight - so everything stays configurable to change back the day after 😉
+
+### What NOT to Expect
+
+❌ **A GUI application** - This will never become an Electron app or require a browser  
+❌ **Mouse-driven interface** - If you need to click things, this isn't for you  
+❌ **Cloud dependencies** - No data harvesting, no mandatory accounts, no "sync services"  
+❌ **LaTeX-level complexity** - We embrace Typst's simplicity over LaTeX's ultimate power  
+❌ **Beginner-friendly onboarding** - This assumes you're comfortable with Neovim and the terminal  
+❌ **Immediate perfection** - This is an evolving experiment in terminal-based knowledge management  
+❌ **Overwhelming configurability (yet)** - First iteration focuses on core functionality; hackability will expand  
+❌ **Support obligations** - Read the LICENSE: this is true open source → **Get everything, Expect nothing!**  
+❌ **Guaranteed responses** - No expectations for pull requests, issues, code critique, or feedback  
+❌ **Roadmap commitments** - Features may or may not happen, when they happen, if they happen  
+
+### The Vision
+
+With this plugin, I'm testing how far Typst can go as my primary markup tool, paired with my favorite terminal and Neovim workflow. The goal isn't to compete with mainstream tools - it's to prove that keyboard-driven, terminal-native productivity can be more powerful and pleasant than any GUI.
+
+This is shared in the spirit of true open source: take it, fork it, improve it, or ignore it. I built this for myself, and I'm sharing it because others might find it useful. But I owe you nothing beyond what's already here.
+
+If you share this philosophy, welcome to the experiment. If you're looking for another Electron app with pretty buttons or guaranteed support, you're in the wrong place.
+
+## Current Features
+
+### Template System
 - **Smart templates** with automatic metadata handling (status, tags, properties)
 - **Dynamic template discovery** - automatically finds all `.typ` templates
 - **Consistent styling** with professional color schemes and typography
 - **Status badges** with deterministic coloring (same status = same color always)
 - **Tag system** supporting special characters, emojis, and automatic color assignment
 
-### ⚡ Workflow Integration  
+### Workflow Integration  
 - **One-command document creation** from templates
 - **Integrated compilation** - compile to PDF and open instantly
 - **Auto-compilation** on save with live PDF refresh
 - **Smart file naming** with customizable formats and conflict prevention
 - **Cross-platform** support (Linux, macOS, Windows)
 
-### 🎨 Professional Output
+### Professional Output
 - **Beautiful typography** with proper heading hierarchy and spacing
 - **Code highlighting** for inline and block code with syntax support
 - **Professional links** with elegant underlines and hover effects  
 - **Consistent icons** using Nerd Fonts for visual clarity
 - **Metadata boxes** for structured document properties
 
-## 📦 Installation
+## Installation
 
 ### With [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -64,7 +117,7 @@ use {
 }
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 ### Default Configuration
 
@@ -120,7 +173,7 @@ require('typstwriter').setup({
 })
 ```
 
-## 🚀 Usage
+## Usage
 
 ### Commands
 
@@ -171,7 +224,7 @@ With this configuration:
 5. **Compile**: Press `<leader>tp` or run `:TWriterCompile`
 6. **View**: Press `<leader>to` or run `:TWriterOpen` to view the PDF
 
-## 📄 Templates
+## Templates
 
 ### Template Structure
 
@@ -247,7 +300,7 @@ Common icon examples:
 - `` - Settings and configuration
 - `` - Files and documents
 
-## 📋 Requirements
+## Requirements
 
 - **Neovim** >= 0.7.0
 - **Typst binary** - Install from [typst.app](https://typst.app) or your package manager
@@ -258,7 +311,7 @@ Common icon examples:
   - Install from: https://www.nerdfonts.com/font-downloads
   - Templates use professional font stacks for optimal rendering
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Typst binary not found
 ```bash
@@ -300,19 +353,19 @@ If icons don't display correctly:
 3. The templates use "Iosevka NFP/NFM" by default with fallbacks
 4. You can modify the font stacks in `base.typ` to use different fonts
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🔮 Future Vision: Personal Knowledge System
+## Future Vision: Personal Knowledge System
 
 **typstwriter.nvim** is evolving beyond templating into a comprehensive **Personal Knowledge System (PKS)** that rivals Obsidian while remaining entirely terminal-based.
 
-### 🚀 Planned Features
+### Planned Features
 
 #### **Phase 1: Intelligent Linking**
 ```vim
@@ -344,7 +397,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 **Privacy-First AI:** All AI features use local models (Ollama, llamafile) - your data never leaves your machine.
 
-### 🎯 The Vision
+### The Vision
 
 Imagine the **best aspects** of:
 - **Obsidian's** linking and graph views
@@ -358,62 +411,7 @@ Imagine the **best aspects** of:
 
 ---
 
-## 🎯 Philosophy: Why This Plugin Exists
-
-As one of the few "progressive conservatives" in computing, I've spent decades with vi, vim, and now Neovim in the terminal - this is how I've used computers since the early Unix days. While others chase shiny GUI applications wrapped in Electron, I remain committed to never leaving the terminal.
-
-### The Challenge
-
-Modern tools like **Obsidian**, **VS Code**, **Excel**, **PowerBI**, **DBeaver**, **AnyType** - they encapsulate powerful functionality behind frustrating mouse-driven interfaces. They assume you want to leave your keyboard-centric workflow for their "user-friendly" GUIs. I refuse.
-
-### The Markup Evolution
-
-**LaTeX** has been the gold standard for typesetting since the late 80s/early 90s - a rich, powerful tool in any academic's toolbox. With its vast ecosystem of plugins and adaptations, LaTeX's typesetting capabilities remain unmatched. But it's often frustrating and difficult to get right, with syntax that can become unreadable.
-
-**Markdown** evolved with the HTML/CSS mindset - thinking in terms of web presentation with confusing CSS iterations to make it presentable. It gained readability but was fundamentally designed for web rendering, not professional typesetting.
-
-**Typst** changed everything. It offers:
-- The simplicity of Vimwiki-like basic syntax
-- Typesetting power comparable to LaTeX on a bad day (but evolving rapidly)
-- Readable markup that doesn't sacrifice functionality
-- A modern approach designed for documents, not web pages
-
-When I discovered Typst, it struck a chord. What if I could replace my entire Markdown vault with YAML frontmatter notes using this superior tool? The typesetting may not match LaTeX's full power yet, but it's more than sufficient for my needs and improving constantly. And so this plugin was born.
-
-### What to Expect
-
-✅ **A complete terminal-native writing system** - No GUI dependencies, ever  
-✅ **Professional document output** - High-quality PDFs from readable markup  
-✅ **Keyboard-driven workflow** - Everything accessible via keybindings and commands  
-✅ **Progressive enhancement** - Starting with templates, evolving toward AI-assisted knowledge management  
-✅ **Privacy-first approach** - Local processing, your data stays with you  
-✅ **Beautiful typography** - Professional fonts and consistent styling out of the box  
-✅ **Hackability above all** - Built to work exactly how you want it. As a progressive conservative, my preferences might change overnight - so everything stays configurable to change back the day after 😉
-
-### What NOT to Expect
-
-❌ **A GUI application** - This will never become an Electron app or require a browser  
-❌ **Mouse-driven interface** - If you need to click things, this isn't for you  
-❌ **Cloud dependencies** - No data harvesting, no mandatory accounts, no "sync services"  
-❌ **LaTeX-level complexity** - We embrace Typst's simplicity over LaTeX's ultimate power  
-❌ **Beginner-friendly onboarding** - This assumes you're comfortable with Neovim and the terminal  
-❌ **Immediate perfection** - This is an evolving experiment in terminal-based knowledge management  
-❌ **Overwhelming configurability (yet)** - First iteration focuses on core functionality; hackability will expand  
-❌ **Support obligations** - Read the LICENSE: this is true open source → **Get everything, Expect nothing!**  
-❌ **Guaranteed responses** - No expectations for pull requests, issues, code critique, or feedback  
-❌ **Roadmap commitments** - Features may or may not happen, when they happen, if they happen  
-
-### The Vision
-
-With this plugin, I'm testing how far Typst can go as my primary markup tool, paired with my favorite terminal and Neovim workflow. The goal isn't to compete with mainstream tools - it's to prove that keyboard-driven, terminal-native productivity can be more powerful and pleasant than any GUI.
-
-This is shared in the spirit of true open source: take it, fork it, improve it, or ignore it. I built this for myself, and I'm sharing it because others might find it useful. But I owe you nothing beyond what's already here.
-
-If you share this philosophy, welcome to the experiment. If you're looking for another Electron app with pretty buttons or guaranteed support, you're in the wrong place.
-
----
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Typst](https://typst.app) - The amazing typesetting system that makes this possible
 - [Neovim](https://neovim.io) - The extensible text editor that powers the experience  
