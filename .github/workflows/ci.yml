@@ -53,11 +53,15 @@ jobs:
       run: make test-coverage
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
-        file: ./luacov.report.out
+        files: ./luacov.report.out
         flags: unittests
         name: neovim-${{ matrix.neovim-version }}
+        fail_ci_if_error: false
+        verbose: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     runs-on: ubuntu-latest
@@ -145,8 +149,12 @@ jobs:
       run: make ci
     
     - name: Upload coverage from CI pipeline
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
-        file: ./luacov.report.out
+        files: ./luacov.report.out
         flags: ci-pipeline
         name: full-ci-pipeline
+        fail_ci_if_error: false
+        verbose: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
