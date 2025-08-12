@@ -37,12 +37,16 @@ describe("typstwriter integration", function()
       vim.fn.mkdir = function()
         return 1
       end
-      
+
       -- Mock autocommand and keymap creation
-      vim.api.nvim_create_augroup = function() return 1 end
+      vim.api.nvim_create_augroup = function()
+        return 1
+      end
       vim.api.nvim_create_autocmd = function() end
       vim.keymap.set = function() end
-      vim.defer_fn = function(fn) fn() end
+      vim.defer_fn = function(fn)
+        fn()
+      end
 
       assert.has_no_errors(function()
         typstwriter.setup({
@@ -50,7 +54,7 @@ describe("typstwriter integration", function()
           auto_compile = false,
         })
       end)
-      
+
       -- Verify setup actually executed methods
       local info = typstwriter.info()
       assert.is_table(info)
@@ -78,7 +82,7 @@ describe("typstwriter integration", function()
     it("should handle configuration setup and retrieval", function()
       -- Test config module directly
       local config = typstwriter.config
-      
+
       -- Setup config
       config.setup({
         notes_dir = "~/custom-notes",
@@ -86,14 +90,14 @@ describe("typstwriter integration", function()
         auto_compile = true,
         code_length = 8,
       })
-      
+
       -- Test config retrieval (account for path expansion)
       local notes_dir = config.get("notes_dir")
       assert.is_string(notes_dir)
       assert.is_not_nil(notes_dir:match("custom%-notes")) -- Should contain the directory name
       assert.equals(true, config.get("auto_compile"))
       assert.equals(8, config.get("code_length"))
-      
+
       -- Test default values
       assert.is_table(config.get("keymaps"))
     end)
