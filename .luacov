@@ -1,0 +1,19 @@
+-- Luacov configuration for typstwriter.nvim
+
+-- Files to include in coverage analysis
+include = {
+  "^lua/typstwriter/.*%.lua$",
+}
+
+-- Files to exclude from coverage
+exclude = {
+  "spec/",
+  "lua/typstwriter/templates/defaults.lua",
+}
+
+-- Output settings
+reportfile = "luacov.report.out"
+statsfile = "luacov.stats.out"
+
+-- Delete stats file on startup
+deletestats = true

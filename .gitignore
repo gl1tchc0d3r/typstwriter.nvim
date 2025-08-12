@@ -1,0 +1,60 @@
+# Neovim Plugin .gitignore
+
+# Lua bytecode
+*.luac
+
+# LuaRocks
+/luarocks/
+
+# Development and testing
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Plugin development
+/test/
+/spec/
+/coverage/
+
+# Local development configuration
+/local/
+.env
+.env.local
+
+# Documentation builds
+/doc/tags
+
+# Package management
+node_modules/
+package-lock.json
+
+# Temporary build artifacts
+/target/
+/build/
+
+# Personal notes and TODO files
+/notes/
+TODO.local
+NOTES.local
+
+# Local plugin testing
+/dev/
+/sandbox/

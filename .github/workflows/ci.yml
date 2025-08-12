@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        neovim-version:
+          - 'stable'
+          - 'nightly'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Neovim
+      uses: rhymond/setup-neovim@v1
+      with:
+        neovim-version: ${{ matrix.neovim-version }}
+    
+    - name: Setup Lua
+      uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: '5.1'
+    
+    - name: Setup LuaRocks
+      uses: leafo/gh-actions-luarocks@v4
+    
+    - name: Install dependencies via Makefile
+      run: make install-deps
+    
+    - name: Install Typst for integration tests
+      run: |
+        curl -fsSL https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz | tar -xJ
+        sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
+        typst --version
+    
+    - name: Run tests with coverage
+      run: make test-coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./luacov.report.out
+        flags: unittests
+        name: neovim-${{ matrix.neovim-version }}
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Lua
+      uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: '5.1'
+    
+    - name: Setup LuaRocks
+      uses: leafo/gh-actions-luarocks@v4
+    
+    - name: Install dependencies
+      run: |
+        luarocks install luacheck
+        # Install StyLua for consistency
+        curl -L -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+        unzip stylua.zip
+        chmod +x stylua
+        sudo mv stylua /usr/local/bin/
+    
+    - name: Run linting via Makefile
+      run: make lint
+
+  format-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install StyLua
+      run: |
+        curl -L -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+        unzip stylua.zip
+        chmod +x stylua
+        sudo mv stylua /usr/local/bin/
+        stylua --version
+    
+    - name: Check code formatting via Makefile
+      run: make format-check
+
+  # Comprehensive CI job that mirrors local 'make ci' target
+  ci-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Neovim
+      uses: rhymond/setup-neovim@v1
+      with:
+        neovim-version: 'stable'
+    
+    - name: Setup Lua
+      uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: '5.1'
+    
+    - name: Setup LuaRocks
+      uses: leafo/gh-actions-luarocks@v4
+    
+    - name: Install all dependencies
+      run: make install-deps
+    
+    - name: Install StyLua
+      run: |
+        curl -L -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+        unzip stylua.zip
+        chmod +x stylua
+        sudo mv stylua /usr/local/bin/
+    
+    - name: Install Typst for integration tests
+      run: |
+        curl -fsSL https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz | tar -xJ
+        sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
+        typst --version
+    
+    - name: Run full CI pipeline (matches local 'make ci')
+      run: make ci
+    
+    - name: Upload coverage from CI pipeline
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./luacov.report.out
+        flags: ci-pipeline
+        name: full-ci-pipeline
