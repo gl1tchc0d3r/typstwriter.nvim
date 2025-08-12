@@ -5,6 +5,7 @@ describe("typstwriter integration", function()
 
   before_each(function()
     helpers.mock_vim()
+    -- This loads the main init.lua which loads all other modules
     typstwriter = require("typstwriter")
   end)
 
@@ -14,13 +15,34 @@ describe("typstwriter integration", function()
 
   describe("plugin setup", function()
     it("should setup without errors", function()
-      -- Mock vim.fn.has for PDF opener detection
+      -- Mock vim functions for full setup
       vim.fn.has = function(feature)
         if feature == "unix" then
           return 1
         end
         return 0
       end
+      vim.fn.executable = function(cmd)
+        return cmd == "typst" and 1 or 0
+      end
+      vim.fn.expand = function(path)
+        if path:match("~") then
+          return path:gsub("~", "/home/user")
+        end
+        return path
+      end
+      vim.fn.isdirectory = function()
+        return 0
+      end
+      vim.fn.mkdir = function()
+        return 1
+      end
+      
+      -- Mock autocommand and keymap creation
+      vim.api.nvim_create_augroup = function() return 1 end
+      vim.api.nvim_create_autocmd = function() end
+      vim.keymap.set = function() end
+      vim.defer_fn = function(fn) fn() end
 
       assert.has_no_errors(function()
         typstwriter.setup({
@@ -28,6 +50,11 @@ describe("typstwriter integration", function()
           auto_compile = false,
         })
       end)
+      
+      -- Verify setup actually executed methods
+      local info = typstwriter.info()
+      assert.is_table(info)
+      assert.equals("typstwriter.nvim", info.name)
     end)
 
     it("should create user commands", function()
@@ -44,6 +71,31 @@ describe("typstwriter integration", function()
       assert.is_not_nil(commands_created.TWriterCompile)
       assert.is_not_nil(commands_created.TWriterOpen)
       assert.is_not_nil(commands_created.TWriterBoth)
+    end)
+  end)
+
+  describe("configuration management", function()
+    it("should handle configuration setup and retrieval", function()
+      -- Test config module directly
+      local config = typstwriter.config
+      
+      -- Setup config
+      config.setup({
+        notes_dir = "~/custom-notes",
+        template_dir = "~/templates",
+        auto_compile = true,
+        code_length = 8,
+      })
+      
+      -- Test config retrieval (account for path expansion)
+      local notes_dir = config.get("notes_dir")
+      assert.is_string(notes_dir)
+      assert.is_not_nil(notes_dir:match("custom%-notes")) -- Should contain the directory name
+      assert.equals(true, config.get("auto_compile"))
+      assert.equals(8, config.get("code_length"))
+      
+      -- Test default values
+      assert.is_table(config.get("keymaps"))
     end)
   end)
 

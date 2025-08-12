@@ -2,13 +2,14 @@
 
 -- Files to include in coverage analysis
 include = {
-  "^lua/typstwriter/.*%.lua$",
+  "typstwriter",
+  "typstwriter/.*",
 }
 
 -- Files to exclude from coverage
 exclude = {
   "spec/",
-  "lua/typstwriter/templates/defaults.lua",
+  "helpers",
 }
 
 -- Output settings
