@@ -2,15 +2,15 @@
 
 > A complete Typst writing system for Neovim - from beautiful templates to intelligent personal knowledge management
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/gl1tchc0d3r/typstwriter.nvim/workflows/CI/badge.svg)](https://github.com/gl1tchc0d3r/typstwriter.nvim/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/gl1tchc0d3r/typstwriter.nvim/ci.yml?branch=main&label=tests)](https://github.com/gl1tchc0d3r/typstwriter.nvim/actions)
+[![Neovim](https://img.shields.io/badge/Neovim-0.7+-green.svg)](https://neovim.io)
+[![Typst](https://img.shields.io/badge/Typst-compatible-blue.svg)](https://typst.app)
+
 ![Document Example](./assets/example-document.png)
 
 *Professional document output with automated status badges, smart tag coloring, and beautiful typography - all generated from simple templates.*
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/gl1tchc0d3r/typstwriter.nvim/workflows/CI/badge.svg)](https://github.com/gl1tchc0d3r/typstwriter.nvim/actions)
-[![codecov](https://codecov.io/gh/gl1tchc0d3r/typstwriter.nvim/branch/main/graph/badge.svg)](https://codecov.io/gh/gl1tchc0d3r/typstwriter.nvim)
-[![Neovim](https://img.shields.io/badge/Neovim-0.7+-green.svg)](https://neovim.io)
-[![Typst](https://img.shields.io/badge/Typst-compatible-blue.svg)](https://typst.app)
 
 ## Philosophy: Why This Plugin Exists
 
