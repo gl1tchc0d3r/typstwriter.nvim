@@ -214,14 +214,28 @@ local function setup_which_key()
     return
   end
 
-  -- Register key descriptions
-  wk.add({
-    { "<leader>t", group = "Typst" },
-    { keymaps.new_document, desc = "New from template", mode = "n" },
-    { keymaps.compile, desc = "PDF compile", mode = "n" },
-    { keymaps.open_pdf, desc = "PDF open", mode = "n" },
-    { keymaps.compile_and_open, desc = "PDF compile & open", mode = "n" },
-  })
+  -- Register key descriptions (only for actual keymaps, not conflicting groups)
+  local registrations = {}
+  
+  if keymaps.new_document then
+    table.insert(registrations, { keymaps.new_document, desc = "New from template", mode = "n" })
+  end
+  
+  if keymaps.compile then
+    table.insert(registrations, { keymaps.compile, desc = "PDF compile", mode = "n" })
+  end
+  
+  if keymaps.open_pdf then
+    table.insert(registrations, { keymaps.open_pdf, desc = "PDF open", mode = "n" })
+  end
+  
+  if keymaps.compile_and_open then
+    table.insert(registrations, { keymaps.compile_and_open, desc = "PDF compile & open", mode = "n" })
+  end
+  
+  if #registrations > 0 then
+    wk.add(registrations)
+  end
 end
 
 -- Auto-setup which-key integration when plugin is loaded
