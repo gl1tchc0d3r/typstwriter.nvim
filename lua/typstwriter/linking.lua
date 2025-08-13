@@ -126,26 +126,44 @@ end
 --- @param format string Link format ("wiki" or "typst")
 --- @return string Link text
 local function generate_link_text(doc, format)
-  format = format or "wiki" -- Default to wiki-style links
+  format = format or "typst" -- Default to native Typst links
 
   local title = doc.title or doc.basename
 
   if format == "wiki" then
-    return string.format("[[%s]]", title)
+    -- Use a custom wiki-style that won't conflict with Typst arrays
+    -- This creates a simple text reference that could be processed later
+    return string.format("@%s", title:gsub(" ", "-"):lower())
   elseif format == "typst" then
     -- Calculate relative path from current file to target
     local current_file = vim.fn.expand("%:p")
-    local relative_path = vim.fn.fnamemodify(doc.path, ":.")
-
-    -- Try to make a proper relative path
+    local relative_path = doc.filename -- Start with just filename
+    
+    -- Try to calculate proper relative path
     if current_file and current_file ~= "" then
       local current_dir = vim.fn.fnamemodify(current_file, ":h")
       local target_dir = vim.fn.fnamemodify(doc.path, ":h")
-
-      -- If both are in notes_dir, calculate relative path
-      local notes_dir = config.get("notes_dir")
-      if vim.startswith(current_dir, notes_dir) and vim.startswith(target_dir, notes_dir) then
-        relative_path = vim.fn.fnamemodify(doc.path, ":~:.")
+      
+      if current_dir == target_dir then
+        -- Same directory, just use filename
+        relative_path = doc.filename
+      else
+        -- Different directory, use relative path
+        local notes_dir = config.get("notes_dir")
+        if vim.startswith(current_dir, notes_dir) and vim.startswith(target_dir, notes_dir) then
+          -- Both in notes dir, calculate relative path
+          relative_path = vim.fn.fnamemodify(doc.path, ":~")
+          -- Remove the ~ prefix if present
+          if vim.startswith(relative_path, "~") then
+            relative_path = relative_path:sub(2)
+          end
+          -- Remove leading slash if present
+          if vim.startswith(relative_path, "/") then
+            relative_path = relative_path:sub(2)
+          end
+        else
+          relative_path = doc.filename
+        end
       end
     end
 
@@ -203,9 +221,9 @@ function M.pick_document(callback)
 end
 
 --- Create link to document (interactive)
---- @param link_format string|nil Link format ("wiki" or "typst"), defaults to "wiki"
+--- @param link_format string|nil Link format ("wiki" or "typst"), defaults to "typst"
 function M.create_link(link_format)
-  link_format = link_format or "wiki"
+  link_format = link_format or "typst"
 
   M.pick_document(function(doc)
     local link_text = generate_link_text(doc, link_format)
@@ -216,9 +234,9 @@ end
 
 --- Create link to specific document by name
 --- @param document_name string Name or title of the document
---- @param link_format string|nil Link format ("wiki" or "typst"), defaults to "wiki"
+--- @param link_format string|nil Link format ("wiki" or "typst"), defaults to "typst"
 function M.create_link_by_name(document_name, link_format)
-  link_format = link_format or "wiki"
+  link_format = link_format or "typst"
 
   local documents = M.get_all_documents()
   local found_doc = nil
