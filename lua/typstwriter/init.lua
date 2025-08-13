@@ -5,6 +5,7 @@ local M = {}
 -- Module dependencies
 local compiler = require("typstwriter.compiler")
 local config = require("typstwriter.config")
+local linking = require("typstwriter.linking")
 local templates = require("typstwriter.templates")
 local utils = require("typstwriter.utils")
 
@@ -64,6 +65,32 @@ function M.create_commands()
     templates.show_templates()
   end, {
     desc = "List available document templates",
+  })
+
+  -- Document linking commands
+  vim.api.nvim_create_user_command("TWriterLink", function(opts)
+    if opts.args and opts.args ~= "" then
+      -- Direct link to specific document
+      linking.create_link_by_name(opts.args)
+    else
+      -- Interactive link picker
+      linking.create_link()
+    end
+  end, {
+    desc = "Create link to document (interactive or by name)",
+    nargs = "?",
+    complete = function(arglead, cmdline, cursorpos)
+      -- Auto-complete document names
+      local documents = linking.get_all_documents()
+      local completions = {}
+      for _, doc in ipairs(documents) do
+        local title = doc.title or doc.basename
+        if title:lower():find(arglead:lower(), 1, true) then
+          table.insert(completions, title)
+        end
+      end
+      return completions
+    end,
   })
 end
 
@@ -132,6 +159,18 @@ function M.setup_keymaps()
         keymaps.pdf_open,
         compiler.open_pdf,
         vim.tbl_extend("force", opts, { desc = "Open Typst PDF" })
+      )
+    end
+
+    -- Document linking keymap
+    if keymaps.link_document then
+      vim.keymap.set(
+        "n",
+        keymaps.link_document,
+        function()
+          linking.create_link()
+        end,
+        vim.tbl_extend("force", opts, { desc = "Link to document" })
       )
     end
   end

@@ -17,13 +17,14 @@ M.defaults = {
 
   -- Key mappings (set to false to disable)
   keymaps = {
-    new_document = "<leader>tn",
-    compile = "<leader>tp",
-    open_pdf = "<leader>to",
-    compile_and_open = "<leader>tb",
+    new_document = "<leader>Tn",
+    compile = "<leader>Tp",
+    open_pdf = "<leader>To",
+    compile_and_open = "<leader>Tb",
+    link_document = "<leader>Tl",
     -- Alternative short mappings
-    pdf_generate = "<leader>pd",
-    pdf_open = "<leader>po",
+    pdf_generate = "<leader>Pg",
+    pdf_open = "<leader>Po",
   },
 
   -- UI preferences
