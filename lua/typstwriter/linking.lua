@@ -131,9 +131,9 @@ local function generate_link_text(doc, format)
   local title = doc.title or doc.basename
 
   if format == "reference" then
-    -- Generate a label-style reference that could be used for cross-referencing
-    -- This creates @doc-title format, commonly used in academic writing
-    local label = title:gsub("[^%w%s%-]", ""):gsub("%s+", "-"):lower()
+    -- Generate a label-style reference that includes the unique code from filename
+    -- This creates @doc-title-uniquecode format for unambiguous references
+    local label = doc.basename:gsub("[^%w%s%-%.]", ""):gsub("%s+", "-"):lower()
     return string.format("@%s", label)
   elseif format == "link" then
     -- Calculate relative path from current file to target for Typst #link() function
@@ -235,9 +235,9 @@ function M.pick_document(callback)
 end
 
 --- Create link to document (interactive)
---- @param link_format string|nil Link format ("reference", "link", "comment"), defaults to "reference"
+--- @param link_format string|nil Link format ("reference", "link", "comment"), defaults to "link"
 function M.create_link(link_format)
-  link_format = link_format or "reference"
+  link_format = link_format or "link"
 
   M.pick_document(function(doc)
     local link_text = generate_link_text(doc, link_format)
@@ -248,9 +248,9 @@ end
 
 --- Create link to specific document by name
 --- @param document_name string Name or title of the document
---- @param link_format string|nil Link format ("reference", "link", "comment"), defaults to "reference"
+--- @param link_format string|nil Link format ("reference", "link", "comment"), defaults to "link"
 function M.create_link_by_name(document_name, link_format)
-  link_format = link_format or "reference"
+  link_format = link_format or "link"
 
   local documents = M.get_all_documents()
   local found_doc = nil
