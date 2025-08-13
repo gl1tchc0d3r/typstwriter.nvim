@@ -164,14 +164,9 @@ function M.setup_keymaps()
 
     -- Document linking keymap
     if keymaps.link_document then
-      vim.keymap.set(
-        "n",
-        keymaps.link_document,
-        function()
-          linking.create_link()
-        end,
-        vim.tbl_extend("force", opts, { desc = "Link to document" })
-      )
+      vim.keymap.set("n", keymaps.link_document, function()
+        linking.create_link()
+      end, vim.tbl_extend("force", opts, { desc = "Link to document" }))
     end
   end
 
