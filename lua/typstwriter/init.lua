@@ -272,6 +272,10 @@ local function setup_which_key()
     table.insert(registrations, { keymaps.compile_and_open, desc = "PDF compile & open", mode = "n" })
   end
 
+  if keymaps.link_document then
+    table.insert(registrations, { keymaps.link_document, desc = "Link to document", mode = "n" })
+  end
+
   if #registrations > 0 then
     wk.add(registrations)
   end
@@ -283,6 +287,7 @@ vim.defer_fn(setup_which_key, 100)
 -- Export public API
 M.templates = templates
 M.compiler = compiler
+M.linking = linking
 M.config = config
 M.utils = utils
 
