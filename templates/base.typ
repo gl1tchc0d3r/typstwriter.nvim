@@ -269,7 +269,12 @@
           ..properties.map(((key, value)) => {
             (
               text(weight: "semibold", fill: colors.text-tertiary)[#key:],
-              text(fill: colors.text-primary)[#value]
+              // Accept both string and content values - content allows #link() calls
+              if type(value) == content {
+                text(fill: colors.text-primary, value)
+              } else {
+                text(fill: colors.text-primary)[#value]
+              }
             )
           }).flatten()
         )

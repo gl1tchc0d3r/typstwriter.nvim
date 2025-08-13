@@ -15,7 +15,7 @@
     ("Organization", "Company or Organization"),
     ("Email", "person@example.com"),
     ("Phone", "+1 (555) 123-4567"),
-    ("Superior", "link to other human"),
+    ("Superior", [#link("Other Person.abc123.typ")[Person Name]]),
   ),
 )
 
