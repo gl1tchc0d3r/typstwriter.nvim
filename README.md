@@ -242,6 +242,7 @@ Templates should be `.typ` files in your template directory. The plugin:
 typst-templates/
 ├── base.typ       # Shared styles and utilities (ignored by plugin)
 ├── meeting.typ    # Meeting notes template
+├── human.typ      # Human profile template for documenting people
 ├── project.typ    # Project documentation template
 ├── article.typ    # Article template
 └── report.typ     # Report template
