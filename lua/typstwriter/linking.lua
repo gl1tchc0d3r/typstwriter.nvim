@@ -193,12 +193,22 @@ local function insert_link(link_text)
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   local current_line = vim.api.nvim_get_current_line()
 
-  -- Insert the link at cursor position
-  local new_line = current_line:sub(1, col) .. link_text .. current_line:sub(col + 1)
+  -- When transitioning from insert mode to normal mode, cursor moves back one position
+  -- We want to insert after where the user was typing, so we need to add 2:
+  -- +1 to get past the current character, +1 more to account for the insert->normal shift
+  local insert_pos = col + 2
+
+  -- Special case: if we're at the very end of the line, just append
+  if col >= #current_line then
+    insert_pos = #current_line
+  end
+
+  -- Insert the link at the calculated position
+  local new_line = current_line:sub(1, insert_pos) .. link_text .. current_line:sub(insert_pos + 1)
   vim.api.nvim_set_current_line(new_line)
 
   -- Move cursor to end of inserted link
-  vim.api.nvim_win_set_cursor(0, { row, col + #link_text })
+  vim.api.nvim_win_set_cursor(0, { row, insert_pos + #link_text - 1 })
 end
 
 --- Interactive document picker
