@@ -123,51 +123,65 @@ end
 
 --- Generate link text for insertion
 --- @param doc table Document metadata
---- @param format string Link format ("wiki" or "typst")
+--- @param format string Link format ("reference" or "link")
 --- @return string Link text
 local function generate_link_text(doc, format)
-  format = format or "typst" -- Default to native Typst links
+  format = format or "reference" -- Default to reference style
 
   local title = doc.title or doc.basename
 
-  if format == "wiki" then
-    -- Use a custom wiki-style that won't conflict with Typst arrays
-    -- This creates a simple text reference that could be processed later
-    return string.format("@%s", title:gsub(" ", "-"):lower())
-  elseif format == "typst" then
-    -- Calculate relative path from current file to target
+  if format == "reference" then
+    -- Generate a label-style reference that could be used for cross-referencing
+    -- This creates @doc-title format, commonly used in academic writing
+    local label = title:gsub("[^%w%s%-]", ""):gsub("%s+", "-"):lower()
+    return string.format("@%s", label)
+  elseif format == "link" then
+    -- Calculate relative path from current file to target for Typst #link() function
     local current_file = vim.fn.expand("%:p")
     local relative_path = doc.filename -- Start with just filename
-    
+
     -- Try to calculate proper relative path
     if current_file and current_file ~= "" then
       local current_dir = vim.fn.fnamemodify(current_file, ":h")
       local target_dir = vim.fn.fnamemodify(doc.path, ":h")
-      
+
       if current_dir == target_dir then
         -- Same directory, just use filename
         relative_path = doc.filename
       else
-        -- Different directory, use relative path
+        -- Different directory, calculate relative path
         local notes_dir = config.get("notes_dir")
         if vim.startswith(current_dir, notes_dir) and vim.startswith(target_dir, notes_dir) then
-          -- Both in notes dir, calculate relative path
-          relative_path = vim.fn.fnamemodify(doc.path, ":~")
-          -- Remove the ~ prefix if present
-          if vim.startswith(relative_path, "~") then
-            relative_path = relative_path:sub(2)
-          end
-          -- Remove leading slash if present
-          if vim.startswith(relative_path, "/") then
-            relative_path = relative_path:sub(2)
+          -- Both in notes dir, make relative path
+          local current_relative = current_dir:sub(#notes_dir + 2) -- +2 to skip the trailing slash
+          local target_relative = target_dir:sub(#notes_dir + 2)
+
+          if current_relative == target_relative then
+            -- Same relative directory
+            relative_path = doc.filename
+          elseif target_relative == "" then
+            -- Target is in notes root, current is in subdirectory
+            local levels = #vim.split(current_relative, "/")
+            relative_path = string.rep("../", levels) .. doc.filename
+          else
+            -- Different subdirectories - go up then down
+            local current_parts = vim.split(current_relative, "/")
+            local target_parts = vim.split(target_relative, "/")
+            local up_levels = #current_parts
+            relative_path = string.rep("../", up_levels) .. table.concat(target_parts, "/") .. "/" .. doc.filename
           end
         else
+          -- Fallback to just filename
           relative_path = doc.filename
         end
       end
     end
 
+    -- Use proper Typst link syntax for file links
     return string.format('#link("%s")[%s]', relative_path, title)
+  elseif format == "comment" then
+    -- Insert as a comment with the document info for manual processing later
+    return string.format("// TODO: Link to %s (%s)", title, doc.filename)
   end
 
   return title
@@ -221,9 +235,9 @@ function M.pick_document(callback)
 end
 
 --- Create link to document (interactive)
---- @param link_format string|nil Link format ("wiki" or "typst"), defaults to "typst"
+--- @param link_format string|nil Link format ("reference", "link", "comment"), defaults to "reference"
 function M.create_link(link_format)
-  link_format = link_format or "typst"
+  link_format = link_format or "reference"
 
   M.pick_document(function(doc)
     local link_text = generate_link_text(doc, link_format)
@@ -234,9 +248,9 @@ end
 
 --- Create link to specific document by name
 --- @param document_name string Name or title of the document
---- @param link_format string|nil Link format ("wiki" or "typst"), defaults to "typst"
+--- @param link_format string|nil Link format ("reference", "link", "comment"), defaults to "reference"
 function M.create_link_by_name(document_name, link_format)
-  link_format = link_format or "typst"
+  link_format = link_format or "reference"
 
   local documents = M.get_all_documents()
   local found_doc = nil
@@ -268,7 +282,8 @@ function M.create_link_by_name(document_name, link_format)
       templates.create_document("example", document_name)
 
       -- Insert link anyway (assuming document will be created)
-      local link_text = link_format == "wiki" and string.format("[[%s]]", document_name)
+      local label = document_name:gsub("[^%w%s%-]", ""):gsub("%s+", "-"):lower()
+      local link_text = link_format == "reference" and string.format("@%s", label)
         or string.format('#link("%s.typ")[%s]', document_name, document_name)
       insert_link(link_text)
       utils.notify("Created link to new document: " .. document_name)
