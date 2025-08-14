@@ -9,10 +9,6 @@
 [![Neovim](https://img.shields.io/badge/Neovim-0.7+-green.svg)](https://neovim.io)
 [![Typst](https://img.shields.io/badge/Typst-compatible-blue.svg)](https://typst.app)
 
-![Document Example](./assets/example-document.png)
-
-*Professional document output with automated status badges, smart tag coloring, and beautiful typography - all generated from simple templates.*
-
 ## Philosophy: Why This Plugin Exists
 
 As one of the few "progressive conservatives" in computing, I've spent decades with vi, vim, and now Neovim in the terminal - this is how I've used computers since the early Unix days. While others chase shiny GUI applications wrapped in Electron, I remain committed to never leaving the terminal.
