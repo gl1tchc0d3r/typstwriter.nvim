@@ -1,38 +1,64 @@
-#import "typst-templates/base.typ": base
+// Meeting Template v2 - Metadata-driven
+// Clean, minimal template using Typst's native metadata system
 
-// Streamlined meeting template with essential properties only
-// Customize title, participants, and datetime for your meeting
-// DateTime format: YYYY-MM-DD HH:MM (24-hour, easy to parse with scripts)
-#show: base.with(
+#metadata((
+  type: "meeting",
   title: "Meeting Title",
-  date: datetime.today(),
-  doc_type: "meeting",
-  status: "PLANNED",
-  tags: ("meeting"),
-  properties: (
-    ("DateTime", "2025-01-31 14:30"),
-    ("Participants", "Name 1, Name 2"),
-    ("Location", "Conference Room / Video Call"),
-  ),
-)
+  date: "2024-01-15", 
+  status: "draft",
+  tags: ("meeting",),
+  participants: (),
+  duration: "60min",
+  location: "",
+))
 
-= Agenda
-1. Topic 1
-2. Topic 2
-3. Topic 3
+// Basic document setup
+#set document(title: "Meeting Title", date: auto)
+#set page(paper: "a4", margin: 2cm)
+#set text(size: 11pt)
+#set heading(numbering: "1.")
 
-= Discussion Notes
-== Topic 1
-Discussion details…
+// Document header - populated from metadata
+#context {
+  let meta = query(metadata).first().value
+  
+  heading(level: 1)[📋 Meeting: #meta.title]
+  
+  [*Date:* #meta.date \
+  *Status:* #upper(meta.status) \
+  *Duration:* #meta.duration]
+  
+  if meta.location != "" {
+    [\ *Location:* #meta.location]
+  }
+  
+  if meta.participants.len() > 0 {
+    [\ *Participants:* #meta.participants.join(", ")]
+  }
+  
+  if meta.tags.len() > 0 {
+    [\ *Tags:* #meta.tags.join(", ")]
+  }
+}
 
-== Topic 2
-Discussion details…
+== Agenda
 
-= Decisions Made
-Key decisions made during the meeting…
+// Add agenda items here
 
-= Action Items
-Current action items (also automatically listed in summary)…
+== Discussion Points
 
-= Next Steps
-What happens next…
+// Key discussion topics
+
+== Decisions Made
+
+// Record decisions and their rationale
+
+== Action Items
+
+// Tasks assigned with owners and deadlines
+// Example:
+// - [ ] Task description (Owner: Name, Due: Date)
+
+== Next Steps
+
+// Follow-up actions and next meeting date
