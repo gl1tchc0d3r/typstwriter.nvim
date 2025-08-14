@@ -1,90 +1,74 @@
---- Utility functions for typstwriter.nvim
+--- Utilities for typstwriter.nvim
 local config = require("typstwriter.config")
 local M = {}
 
---- Generate a random alphanumeric code
---- @param length number Length of the code to generate
---- @return string Random code
-function M.generate_unique_code(length)
-  length = length or config.get("code_length") or 6
-  local chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  local code = ""
+--- Generate filename for new document
+--- @param title string Document title from metadata
+--- @param doc_type string Document type from metadata (unused, kept for compatibility)
+--- @return string Generated filename
+function M.generate_filename(title, doc_type)
+  local safe_title = title:gsub("[^%w%s%-]", ""):gsub("%s+", "-"):lower()
+  
+  -- Add random suffix if enabled
+  if config.get("use_random_suffix") then
+    local suffix = M.generate_random_suffix(config.get("random_suffix_length") or 6)
+    return string.format("%s.%s.typ", safe_title, suffix)
+  else
+    return string.format("%s.typ", safe_title)
+  end
+end
 
-  -- Seed random number generator
-  math.randomseed(os.time() + os.clock() * 1000000)
-
-  for _ = 1, length do
+--- Generate random alphanumeric suffix
+--- @param length integer Length of suffix
+--- @return string Random suffix
+function M.generate_random_suffix(length)
+  local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  local result = ""
+  
+  math.randomseed(os.time() + vim.fn.getpid())
+  
+  for i = 1, length do
     local idx = math.random(1, #chars)
-    code = code .. string.sub(chars, idx, idx)
+    result = result .. chars:sub(idx, idx)
   end
-
-  return code
+  
+  return result
 end
 
---- Format filename using template placeholders
---- @param name string Document name
---- @param template_format string|nil Format template (defaults to config)
---- @return string Formatted filename
-function M.format_filename(name, template_format)
-  template_format = template_format or config.get("filename_format")
-  local code = M.generate_unique_code()
-  local date = os.date("%Y-%m-%d")
-
-  -- Replace placeholders
-  local filename = template_format:gsub("{name}", name):gsub("{code}", code):gsub("{date}", date)
-
-  -- Ensure .typ extension
-  if not filename:match("%.typ$") then
-    filename = filename .. ".typ"
-  end
-
-  return filename
-end
-
---- Safe notification that respects user settings
+--- Safe notification wrapper
 --- @param message string Message to display
---- @param level integer|nil Log level (defaults to INFO)
+--- @param level integer|nil Log level
 function M.notify(message, level)
   if not config.should_notify() then
     return
   end
 
   level = level or config.get_notification_level()
-  vim.notify(message, level)
+  vim.notify("[TypstWriter] " .. message, level)
 end
 
---- Check if a file exists and is readable
---- @param filepath string Path to check
---- @return boolean True if file exists and is readable
-function M.file_exists(filepath)
-  return vim.fn.filereadable(filepath) == 1
-end
-
---- Check if a directory exists
---- @param dirpath string Directory path to check
---- @return boolean True if directory exists
-function M.dir_exists(dirpath)
-  return vim.fn.isdirectory(dirpath) == 1
-end
-
---- Get the PDF filepath for a given typst file
---- @param typst_file string Path to .typ file
---- @return string Path to corresponding .pdf file
-function M.get_pdf_path(typst_file)
-  if not typst_file then
-    typst_file = vim.fn.expand("%:p")
-  end
-  return vim.fn.fnamemodify(typst_file, ":r") .. ".pdf"
-end
-
---- Check if typst binary is available
---- @return boolean True if typst is in PATH
+--- Check if Typst binary is available
+--- @return boolean True if typst is available
 function M.has_typst()
   return vim.fn.executable("typst") == 1
 end
 
---- Get platform-appropriate PDF opener command
---- @return string|nil Command to open PDFs, nil if not available
+--- Get PDF path for a Typst file
+--- @param typst_file string Path to .typ file
+--- @return string Path to corresponding .pdf file
+function M.get_pdf_path(typst_file)
+  return vim.fn.fnamemodify(typst_file, ":r") .. ".pdf"
+end
+
+--- Check if file exists
+--- @param filepath string Path to check
+--- @return boolean True if file exists
+function M.file_exists(filepath)
+  return vim.fn.filereadable(filepath) == 1
+end
+
+--- Get platform-appropriate PDF opener
+--- @return string|nil PDF opener command
 function M.get_pdf_opener()
   if vim.fn.has("mac") == 1 then
     return "open"
@@ -96,18 +80,18 @@ function M.get_pdf_opener()
   return nil
 end
 
---- Execute a system command safely with error handling
+--- Execute system command with error handling
 --- @param cmd string Command to execute
---- @param success_msg string|nil Message on success
---- @param error_msg string|nil Message on error
---- @return boolean True if command succeeded
+--- @param success_msg string|nil Success message
+--- @param error_msg string|nil Error message
+--- @return boolean True if successful
 function M.system_exec(cmd, success_msg, error_msg)
   local output = vim.fn.system(cmd)
   local success = vim.v.shell_error == 0
 
   if success then
     if success_msg then
-      M.notify(success_msg, vim.log.levels.INFO)
+      M.notify(success_msg)
     end
   else
     local msg = error_msg or ("Command failed: " .. cmd)
@@ -120,20 +104,14 @@ function M.system_exec(cmd, success_msg, error_msg)
   return success
 end
 
---- Check if modern UI (vim.ui.select/input) should be used
---- @return boolean True if modern UI is available and enabled
-function M.use_modern_ui()
-  return config.get("use_modern_ui") and vim.ui and vim.ui.select and vim.ui.input
-end
-
---- Safe wrapper for user input with fallback
+--- Modern UI wrapper for input
 --- @param opts table Input options
 --- @param callback function Callback function
 function M.input(opts, callback)
-  if M.use_modern_ui() then
+  if vim.ui and vim.ui.input then
     vim.ui.input(opts, callback)
   else
-    -- Fallback to vim.fn.input
+    -- Simple fallback
     local result = vim.fn.input(opts.prompt or "", opts.default or "")
     if callback then
       callback(result ~= "" and result or nil)
@@ -141,15 +119,15 @@ function M.input(opts, callback)
   end
 end
 
---- Safe wrapper for selection with fallback
---- @param items table List of items to select from
+--- Modern UI wrapper for selection
+--- @param items table List of items
 --- @param opts table Selection options
 --- @param callback function Callback function
 function M.select(items, opts, callback)
-  if M.use_modern_ui() then
+  if vim.ui and vim.ui.select then
     vim.ui.select(items, opts, callback)
   else
-    -- Fallback to numbered menu
+    -- Simple fallback
     print(opts.prompt or "Select an option:")
     for i, item in ipairs(items) do
       print(i .. ". " .. tostring(item))
@@ -168,9 +146,9 @@ function M.select(items, opts, callback)
   end
 end
 
---- Capitalize first letter of a string
+--- Capitalize first letter of string
 --- @param str string Input string
---- @return string String with first letter capitalized
+--- @return string Capitalized string
 function M.capitalize(str)
   if not str or str == "" then
     return str

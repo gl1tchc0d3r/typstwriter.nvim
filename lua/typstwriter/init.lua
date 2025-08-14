@@ -1,114 +1,86 @@
---- Main module for typstwriter.nvim
---- A complete Typst writing system for Neovim
+--- Main plugin entry point for typstwriter.nvim
+--- Metadata-driven Typst writing system
 local M = {}
 
 -- Module dependencies
-local compiler = require("typstwriter.compiler")
+local metadata = require("typstwriter.metadata")
 local config = require("typstwriter.config")
-local linking = require("typstwriter.linking")
-local templates = require("typstwriter.templates")
 local utils = require("typstwriter.utils")
+local templates = require("typstwriter.templates")
+local compiler = require("typstwriter.compiler")
 
---- Setup the plugin with user configuration
+--- Setup the plugin system
 --- @param user_config table|nil User configuration overrides
 function M.setup(user_config)
   -- Initialize configuration
   config.setup(user_config)
 
-  -- Create user commands
+  -- Create commands
   M.create_commands()
 
-  -- Setup key mappings if enabled
+  -- Setup key mappings
   M.setup_keymaps()
-
-  -- Setup autocommands
-  M.setup_autocommands()
 
   -- Check system requirements
   M.check_requirements()
+
+  utils.notify("TypstWriter initialized")
 end
 
 --- Create user commands
 function M.create_commands()
-  vim.api.nvim_create_user_command("TWriterNew", function()
+  vim.api.nvim_create_user_command("TypstWriterNew", function()
     templates.create_from_template()
   end, {
     desc = "Create new document from template",
   })
 
-  vim.api.nvim_create_user_command("TWriterCompile", function()
+  vim.api.nvim_create_user_command("TypstWriterCompile", function()
     compiler.compile_current()
   end, {
     desc = "Compile current document to PDF",
   })
 
-  vim.api.nvim_create_user_command("TWriterOpen", function()
+  vim.api.nvim_create_user_command("TypstWriterOpen", function()
     compiler.open_pdf()
   end, {
     desc = "Open PDF of current document",
   })
 
-  vim.api.nvim_create_user_command("TWriterBoth", function()
+  vim.api.nvim_create_user_command("TypstWriterBoth", function()
     compiler.compile_and_open()
   end, {
-    desc = "Compile current document and open PDF",
+    desc = "Compile and open PDF",
   })
 
-  -- Additional utility commands
-  vim.api.nvim_create_user_command("TWriterStatus", function()
+  vim.api.nvim_create_user_command("TypstWriterStatus", function()
     compiler.show_status()
   end, {
-    desc = "Show compilation status and system info",
+    desc = "Show system status and metadata info",
   })
 
-  vim.api.nvim_create_user_command("TWriterTemplates", function()
+  vim.api.nvim_create_user_command("TypstWriterTemplates", function()
     templates.show_templates()
   end, {
-    desc = "List available document templates",
-  })
-
-  -- Document linking commands
-  vim.api.nvim_create_user_command("TWriterLink", function(opts)
-    if opts.args and opts.args ~= "" then
-      -- Direct link to specific document
-      linking.create_link_by_name(opts.args)
-    else
-      -- Interactive link picker
-      linking.create_link()
-    end
-  end, {
-    desc = "Create link to document (interactive or by name)",
-    nargs = "?",
-    complete = function(arglead, cmdline, cursorpos)
-      -- Auto-complete document names
-      local documents = linking.get_all_documents()
-      local completions = {}
-      for _, doc in ipairs(documents) do
-        local title = doc.title or doc.basename
-        if title:lower():find(arglead:lower(), 1, true) then
-          table.insert(completions, title)
-        end
-      end
-      return completions
-    end,
+    desc = "List available templates",
   })
 end
 
---- Setup key mappings based on configuration
+--- Setup key mappings
 function M.setup_keymaps()
   local keymaps = config.get("keymaps")
   if not keymaps then
     return
   end
 
-  -- Global keymap for creating new documents (works from any buffer)
+  -- Global keymap for creating new documents
   if keymaps.new_document then
     vim.keymap.set("n", keymaps.new_document, function()
       templates.create_from_template()
     end, {
       noremap = true,
       silent = true,
-      desc = "Create new Typst document from template",
+      desc = "Create new Typst document",
     })
   end
 
@@ -139,38 +111,12 @@ function M.setup_keymaps()
         "n",
         keymaps.compile_and_open,
         compiler.compile_and_open,
-        vim.tbl_extend("force", opts, { desc = "Compile and open Typst PDF" })
+        vim.tbl_extend("force", opts, { desc = "Compile and open PDF" })
       )
-    end
-
-    -- Alternative short mappings
-    if keymaps.pdf_generate then
-      vim.keymap.set(
-        "n",
-        keymaps.pdf_generate,
-        compiler.compile_current,
-        vim.tbl_extend("force", opts, { desc = "Generate PDF from Typst" })
-      )
-    end
-
-    if keymaps.pdf_open then
-      vim.keymap.set(
-        "n",
-        keymaps.pdf_open,
-        compiler.open_pdf,
-        vim.tbl_extend("force", opts, { desc = "Open Typst PDF" })
-      )
-    end
-
-    -- Document linking keymap
-    if keymaps.link_document then
-      vim.keymap.set("n", keymaps.link_document, function()
-        linking.create_link()
-      end, vim.tbl_extend("force", opts, { desc = "Link to document" }))
     end
   end
 
-  -- Auto commands for Typst files
+  -- Setup buffer keymaps for Typst files
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "typst",
     callback = setup_buffer_keymaps,
@@ -178,45 +124,18 @@ function M.setup_keymaps()
   })
 end
 
---- Setup autocommands
-function M.setup_autocommands()
-  local augroup = vim.api.nvim_create_augroup("TWriter", { clear = true })
-
-  -- Setup auto-compile for new Typst files if enabled
-  vim.api.nvim_create_autocmd("FileType", {
-    group = augroup,
-    pattern = "typst",
-    callback = function()
-      local file_path = vim.fn.expand("%:p")
-      if config.get("auto_compile") then
-        compiler.setup_auto_compile(file_path)
-      end
-    end,
-    desc = "Setup auto-compile for Typst files",
-  })
-end
-
---- Check system requirements and warn if missing
+--- Check system requirements
 function M.check_requirements()
   if not utils.has_typst() then
-    utils.notify("Typst binary not found in PATH. Install from: https://github.com/typst/typst", vim.log.levels.WARN)
+    utils.notify("Typst binary not found. Install from: https://typst.app", vim.log.levels.WARN)
   end
 
   if not utils.get_pdf_opener() then
     utils.notify("No PDF opener detected. PDF opening may not work.", vim.log.levels.WARN)
   end
 
-  -- Check directories
-  local notes_dir = config.get("notes_dir")
-  local template_dir = config.get("template_dir")
-
-  if not utils.dir_exists(notes_dir) then
-    utils.notify("Notes directory created: " .. notes_dir)
-  end
-
-  if not utils.dir_exists(template_dir) then
-    utils.notify("Template directory created: " .. template_dir)
-  end
+  -- Ensure directories exist
+  config.ensure_directories()
 end
 
 --- Get plugin information
@@ -224,9 +143,9 @@ end
 function M.info()
   return {
     name = "typstwriter.nvim",
-    version = "1.0.0",
-    description = "A complete Typst writing system for Neovim",
-    author = "gl1tchc0d3r",
+    version = "2.0.0-dev",
+    description = "Metadata-driven Typst writing system",
+    approach = "Native Typst metadata + query system",
     config = config.current,
     requirements = {
       neovim = ">=0.7.0",
@@ -236,76 +155,44 @@ function M.info()
   }
 end
 
---- Integration with which-key.nvim (if available)
-local function setup_which_key()
-  local has_which_key, wk = pcall(require, "which-key")
-  if not has_which_key then
-    return
+--- Test functionality
+function M.test()
+  print("Testing TypstWriter functionality")
+  print("===================================")
+
+  -- Test configuration
+  print("Configuration:")
+  print("  Notes dir: " .. config.get("notes_dir"))
+  print("  Template dir: " .. config.get("template_dir"))
+  print("")
+
+  -- Test template discovery
+  print("Templates:")
+  local templates = templates.get_available_templates()
+  for name, template in pairs(templates) do
+    print("  " .. name .. ": " .. template.description)
+  end
+  print("")
+
+  -- Test metadata extraction
+  print("Metadata test:")
+  for name, template in pairs(templates) do
+    local meta = metadata.parse_metadata(template.path)
+    if meta then
+      print("  ✓ " .. name .. " has valid metadata")
+    else
+      print("  ✗ " .. name .. " missing metadata")
+    end
   end
 
-  local keymaps = config.get("keymaps")
-  if not keymaps then
-    return
-  end
-
-  -- Register key descriptions (only for actual keymaps, not conflicting groups)
-  local registrations = {}
-
-  if keymaps.new_document then
-    table.insert(registrations, { keymaps.new_document, desc = "New from template", mode = "n" })
-  end
-
-  if keymaps.compile then
-    table.insert(registrations, { keymaps.compile, desc = "PDF compile", mode = "n" })
-  end
-
-  if keymaps.open_pdf then
-    table.insert(registrations, { keymaps.open_pdf, desc = "PDF open", mode = "n" })
-  end
-
-  if keymaps.compile_and_open then
-    table.insert(registrations, { keymaps.compile_and_open, desc = "PDF compile & open", mode = "n" })
-  end
-
-  if keymaps.link_document then
-    table.insert(registrations, { keymaps.link_document, desc = "Link to document", mode = "n" })
-  end
-
-  if #registrations > 0 then
-    wk.add(registrations)
-  end
-end
-
--- Auto-setup which-key integration when plugin is loaded
-vim.defer_fn(setup_which_key, 100)
-
--- V2 System Integration (new metadata-driven approach)
-local v2_init = require("typstwriter.v2_init")
-
---- Setup v2 system alongside legacy
---- @param v2_config table|nil V2-specific configuration
-function M.setup_v2(v2_config)
-  v2_init.setup(v2_config)
-end
-
---- Test v2 functionality
-function M.test_v2()
-  v2_init.test()
-end
-
---- Get v2 system info
-function M.info_v2()
-  return v2_init.info()
+  print("")
+  print("✅ system functional!")
 end
 
 -- Export public API
 M.templates = templates
 M.compiler = compiler
-M.linking = linking
 M.config = config
 M.utils = utils
-
--- V2 API
-M.v2 = v2_init
 
 return M

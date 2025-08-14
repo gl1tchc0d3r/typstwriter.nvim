@@ -1,186 +1,243 @@
---- Template discovery and management for typstwriter.nvim
+--- Metadata-driven template system for typstwriter.nvim
+local metadata = require("typstwriter.metadata")
 local config = require("typstwriter.config")
 local utils = require("typstwriter.utils")
 local M = {}
 
---- Get available templates from template directory
---- @return table<string, table> Map of template name to template info
+--- Get available templates
+--- @return table Map of template name to template info
 function M.get_available_templates()
   local templates = {}
   local template_dir = config.get("template_dir")
 
-  if not utils.dir_exists(template_dir) then
-    utils.notify("Template directory does not exist: " .. template_dir, vim.log.levels.WARN)
+  local template_files = vim.fn.glob(template_dir .. "/*.typ", false, true)
+
+  if #template_files == 0 then
+    -- No templates found, which could mean directory doesn't exist or is empty
     return templates
   end
 
-  local template_files = vim.fn.glob(template_dir .. "/*.typ", false, true)
-
   for _, filepath in ipairs(template_files) do
-    local filename = vim.fn.fnamemodify(filepath, ":t")
     local basename = vim.fn.fnamemodify(filepath, ":t:r")
 
-    -- Skip base.typ as it's not a template for direct use
-    if basename ~= "base" then
-      -- Capitalize first letter for display
-      local display_name = utils.capitalize(basename)
-
-      templates[basename] = {
-        file = filename,
-        path = filepath,
-        display_name = display_name,
-        description = display_name .. " template",
-      }
+    -- Skip base templates
+    if basename ~= "base" and basename ~= "base-simple" then
+      local template_info = M.get_template_info(filepath)
+      if template_info then
+        templates[basename] = template_info
+      end
     end
   end
 
   return templates
 end
 
---- Create a new document from template
---- @param template_name string Name of template to use
---- @param doc_name string Name for the new document
-function M.create_document(template_name, doc_name)
+--- Get template information using metadata
+--- @param filepath string Path to template file
+--- @return table|nil Template information or nil if invalid
+function M.get_template_info(filepath)
+  local basename = vim.fn.fnamemodify(filepath, ":t:r")
+  local meta = metadata.parse_metadata(filepath)
+
+  if not meta then
+    -- Fallback for templates without metadata
+    return {
+      name = basename,
+      title = utils.capitalize(basename),
+      type = "document",
+      description = utils.capitalize(basename) .. " template",
+      path = filepath,
+      has_metadata = false,
+    }
+  end
+
+  -- Validate template metadata
+  local valid, error_msg = config.validate_metadata(meta)
+  if not valid then
+    utils.notify("Invalid template " .. basename .. ": " .. error_msg, vim.log.levels.WARN)
+    return nil
+  end
+
+  return {
+    name = basename,
+    title = meta.title or utils.capitalize(basename),
+    type = meta.type or "document",
+    description = meta.description or (meta.title .. " template"),
+    path = filepath,
+    metadata = meta,
+    has_metadata = true,
+  }
+end
+
+--- Create new document from template with metadata
+--- @param template_name string Template to use
+--- @param title string Document title
+--- @param custom_metadata table|nil Additional metadata fields
+--- @return boolean, string Success status and filepath
+function M.create_document(template_name, title, custom_metadata)
   local templates = M.get_available_templates()
   local template = templates[template_name]
 
   if not template then
     utils.notify("Template not found: " .. template_name, vim.log.levels.ERROR)
-    return false
+    return false, nil
   end
 
   -- Generate filename
-  local filename = utils.format_filename(doc_name)
+  local filename = utils.generate_filename(title, template.type)
   local notes_dir = config.get("notes_dir")
   local filepath = notes_dir .. "/" .. filename
 
-  -- Check if file already exists
+  -- Check if file exists
   if utils.file_exists(filepath) then
     local confirm = vim.fn.confirm("File " .. filename .. " already exists. Overwrite?", "&Yes\n&No", 2)
     if confirm ~= 1 then
-      utils.notify("File creation cancelled", vim.log.levels.WARN)
-      return false
+      utils.notify("Document creation cancelled", vim.log.levels.WARN)
+      return false, nil
     end
   end
 
-  -- Check template file exists
-  local template_path = template.path
-  if not utils.file_exists(template_path) then
-    utils.notify("Template file not found: " .. template_path, vim.log.levels.ERROR)
-    return false
+  -- Read template content
+  local template_file = io.open(template.path, "r")
+  if not template_file then
+    utils.notify("Cannot read template file: " .. template.path, vim.log.levels.ERROR)
+    return false, nil
   end
 
-  -- Copy template to new file
-  local copy_cmd = string.format('cp "%s" "%s"', template_path, filepath)
-  local success = utils.system_exec(copy_cmd, "✓ Created: " .. filename, "✗ Failed to create file")
+  local content = template_file:read("*all")
+  template_file:close()
 
-  if success then
-    -- Open the new file
-    vim.cmd("edit " .. filepath)
+  -- Update metadata in template
+  if template.has_metadata then
+    content = M.update_template_metadata(content, title, custom_metadata)
+  end
 
-    -- Auto-compile if enabled
-    if config.get("auto_compile") then
-      vim.defer_fn(function()
-        require("typstwriter.compiler").compile_current()
-      end, 500)
+  -- Write new document
+  local new_file = io.open(filepath, "w")
+  if not new_file then
+    utils.notify("Cannot create file: " .. filepath, vim.log.levels.ERROR)
+    return false, nil
+  end
+
+  new_file:write(content)
+  new_file:close()
+
+  utils.notify("Created: " .. filename)
+  return true, filepath
+end
+
+--- Update template metadata with user values
+--- @param content string Template content
+--- @param title string New document title
+--- @param custom_metadata table|nil Additional metadata
+--- @return string Updated content
+function M.update_template_metadata(content, title, custom_metadata)
+  custom_metadata = custom_metadata or {}
+
+  -- Update title in metadata
+  content = content:gsub('title: ".-"', 'title: "' .. title .. '"')
+
+  -- Update date if auto_date is enabled
+  if config.get("auto_date") then
+    local today = os.date("%Y-%m-%d")
+    content = content:gsub('date: ".-"', 'date: "' .. today .. '"')
+  end
+
+  -- Apply any custom metadata updates
+  for key, value in pairs(custom_metadata) do
+    if type(value) == "string" then
+      content = content:gsub(key .. ': ".-"', key .. ': "' .. value .. '"')
     end
   end
 
-  return success
+  return content
 end
 
 --- Interactive template selection and document creation
 function M.create_from_template()
-  -- Check if typst is available
+  -- Check Typst availability
   if not utils.has_typst() then
-    utils.notify("Typst binary not found in PATH. Please install Typst.", vim.log.levels.ERROR)
+    utils.notify("Typst binary not found. Please install Typst.", vim.log.levels.ERROR)
     return
   end
 
   -- Get available templates
   local templates = M.get_available_templates()
 
-  -- Check if we have any templates
   if next(templates) == nil then
     utils.notify("No templates found in " .. config.get("template_dir"), vim.log.levels.WARN)
     return
   end
 
-  -- Prepare template selection
-  local template_names = {}
-  local template_descriptions = {}
+  -- Prepare template choices
+  local choices = {}
+  local template_map = {}
 
   for name, template in pairs(templates) do
-    table.insert(template_names, name)
-    table.insert(template_descriptions, name .. ": " .. template.description)
+    local display = string.format("%s: %s", template.type:upper(), template.title)
+    table.insert(choices, display)
+    template_map[display] = name
   end
 
-  -- Show template selection
-  utils.select(template_descriptions, {
+  -- Sort choices
+  table.sort(choices)
+
+  -- Template selection
+  utils.select(choices, {
     prompt = "Select template:",
   }, function(choice)
     if not choice then
       return
     end
 
-    -- Extract template name from choice
-    local template_name = choice:match("^([^:]+):")
+    local template_name = template_map[choice]
     if not template_name then
       return
     end
 
-    -- Get document name
+    -- Get document title
     utils.input({
-      prompt = "Document name: ",
-      default = template_name,
-    }, function(doc_name)
-      if not doc_name or doc_name == "" then
+      prompt = "Document title: ",
+      default = templates[template_name].type,
+    }, function(title)
+      if not title or title == "" then
         return
       end
 
-      M.create_document(template_name, doc_name)
+      local success, filepath = M.create_document(template_name, title)
+      if success then
+        vim.cmd("edit " .. filepath)
+
+        -- Auto-compile if enabled
+        if config.get("auto_compile") then
+          vim.defer_fn(function()
+            require("typstwriter.compiler").compile_current()
+          end, 500)
+        end
+      end
     end)
   end)
 end
 
 --- List available templates
---- @return table List of template info for display
-function M.list_templates()
-  local templates = M.get_available_templates()
-  local list = {}
-
-  for name, template in pairs(templates) do
-    table.insert(list, {
-      name = name,
-      display_name = template.display_name,
-      description = template.description,
-      path = template.path,
-    })
-  end
-
-  -- Sort by name
-  table.sort(list, function(a, b)
-    return a.name < b.name
-  end)
-
-  return list
-end
-
---- Print available templates to command line
 function M.show_templates()
-  local templates = M.list_templates()
+  local templates = M.get_available_templates()
 
-  if #templates == 0 then
+  if next(templates) == nil then
     print("No templates found in " .. config.get("template_dir"))
     return
   end
 
   print("Available templates:")
-  print("==================")
-  for _, template in ipairs(templates) do
-    print(string.format("  %-15s %s", template.name, template.description))
+  print("======================")
+
+  for name, template in pairs(templates) do
+    local status = template.has_metadata and "✓" or "!"
+    print(string.format("  %s %-12s %s", status, name, template.description))
   end
+
   print("")
+  print("✓ = Has metadata, ! = No metadata")
   print("Template directory: " .. config.get("template_dir"))
 end
 

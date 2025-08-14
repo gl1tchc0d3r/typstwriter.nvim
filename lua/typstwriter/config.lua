@@ -1,102 +1,83 @@
---- Configuration management for typst-templater.nvim
+--- Configuration system for typstwriter.nvim
+--- 
 local M = {}
 
 --- Default configuration
 M.defaults = {
   -- Directory settings
   notes_dir = vim.fn.expand("~/Documents/notes"),
-  template_dir = nil, -- Will default to notes_dir/typst-templates if nil
+  template_dir = nil, -- Will default to notes_dir/templates
 
-  -- File naming settings
-  filename_format = "{name}.{code}.typ", -- Available: {name}, {code}, {date}
-  code_length = 6,
+  -- Template preferences
+  default_template_type = "note",
+  auto_date = true, -- Automatically set date to today
+  
+  -- Filename generation
+  use_random_suffix = true, -- Add random suffix to filenames for uniqueness
+  random_suffix_length = 6, -- Length of random suffix
 
   -- Compilation settings
   auto_compile = false,
   open_after_compile = true,
 
-  -- Key mappings (set to false to disable)
+  -- Metadata validation
+  require_metadata = true,
+  required_fields = { "type", "title" },
+
+  -- Key mappings for v2 commands
   keymaps = {
-    new_document = "<leader>Tn",
-    compile = "<leader>Tp",
-    open_pdf = "<leader>To",
-    compile_and_open = "<leader>Tb",
-    link_document = "<leader>Tl",
-    -- Alternative short mappings
-    pdf_generate = "<leader>Pg",
-    pdf_open = "<leader>Po",
+    new_document = "<leader>Tn", -- TypstWriterNew
+    compile = "<leader>Tp", -- TypstWriterCompile
+    open_pdf = "<leader>To", -- TypstWriterOpen
+    compile_and_open = "<leader>Tb", -- TypstWriterBoth
   },
 
-  -- UI preferences
-  use_modern_ui = true, -- Use vim.ui.select/input when available
-
-  -- Notification settings
+  -- Notifications
   notifications = {
     enabled = true,
-    level = vim.log.levels.INFO, -- INFO, WARN, ERROR
+    level = vim.log.levels.INFO,
   },
 }
 
---- Current configuration (merged with user config)
+--- Current configuration
 M.current = {}
 
---- Setup configuration with user overrides
+--- Setup configuration
 --- @param user_config table|nil User configuration overrides
 function M.setup(user_config)
   user_config = user_config or {}
 
-  -- Deep merge user config with defaults
+  -- Merge user config with defaults
   M.current = vim.tbl_deep_extend("force", M.defaults, user_config)
 
   -- Set template_dir default if not provided
   if not M.current.template_dir then
-    M.current.template_dir = M.current.notes_dir .. "/typst-templates"
+    M.current.template_dir = M.current.notes_dir .. "/templates/v2"
   end
 
   -- Expand paths
   M.current.notes_dir = vim.fn.expand(M.current.notes_dir)
   M.current.template_dir = vim.fn.expand(M.current.template_dir)
 
-  -- Validate configuration
-  M.validate()
+  -- Create directories if needed
+  M.ensure_directories()
 end
 
---- Validate current configuration
-function M.validate()
-  -- Check if directories exist or can be created
-  local notes_dir = M.current.notes_dir
-  local template_dir = M.current.template_dir
+--- Ensure required directories exist
+function M.ensure_directories()
+  local dirs = { M.current.notes_dir, M.current.template_dir }
 
-  -- Create directories if they don't exist
-  if vim.fn.isdirectory(notes_dir) == 0 then
-    local success = vim.fn.mkdir(notes_dir, "p")
-    if success == 0 then
-      vim.notify("Failed to create notes directory: " .. notes_dir, vim.log.levels.ERROR)
+  for _, dir in ipairs(dirs) do
+    if vim.fn.isdirectory(dir) == 0 then
+      local success = vim.fn.mkdir(dir, "p")
+      if success == 0 then
+        vim.notify("Failed to create directory: " .. dir, vim.log.levels.ERROR)
+      end
     end
-  end
-
-  if vim.fn.isdirectory(template_dir) == 0 then
-    local success = vim.fn.mkdir(template_dir, "p")
-    if success == 0 then
-      vim.notify("Failed to create template directory: " .. template_dir, vim.log.levels.ERROR)
-    end
-  end
-
-  -- Validate filename format
-  local format = M.current.filename_format
-  if not format:match("{name}") then
-    vim.notify("filename_format must contain {name} placeholder", vim.log.levels.ERROR)
-    M.current.filename_format = M.defaults.filename_format
-  end
-
-  -- Validate code length
-  if M.current.code_length < 1 or M.current.code_length > 20 then
-    vim.notify("code_length must be between 1 and 20", vim.log.levels.WARN)
-    M.current.code_length = M.defaults.code_length
   end
 end
 
---- Get current configuration value
+--- Get configuration value
 --- @param key string Configuration key (supports dot notation)
 --- @return any Configuration value
 function M.get(key)
@@ -112,6 +93,24 @@ function M.get(key)
   end
 
   return value
+end
+
+--- Validate metadata against required fields
+--- @param metadata table Metadata to validate
+--- @return boolean, string True if valid, or false with error message
+function M.validate_metadata(metadata)
+  if not M.get("require_metadata") then
+    return true
+  end
+
+  local required = M.get("required_fields") or {}
+  for _, field in ipairs(required) do
+    if not metadata[field] or metadata[field] == "" then
+      return false, "Missing required field: " .. field
+    end
+  end
+
+  return true
 end
 
 --- Check if notifications are enabled
