@@ -68,26 +68,25 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 
 ## Current Features
 
-### Template System
-- **Smart templates** with automatic metadata handling (status, tags, properties)
-- **Dynamic template discovery** - automatically finds all `.typ` templates
-- **Consistent styling** with professional color schemes and typography
-- **Status badges** with deterministic coloring (same status = same color always)
-- **Tag system** supporting special characters, emojis, and automatic color assignment
+### Metadata-Driven Template System
+- **Native Typst metadata** using `#metadata()` function for structured document properties
+- **Dynamic template discovery** - automatically finds and validates all `.typ` templates
+- **Metadata validation** - ensures required fields (type, title) are present
+- **Clean filename generation** with optional random suffixes for uniqueness
+- **Template introspection** using `typst query` for robust metadata extraction
 
-### Workflow Integration  
-- **One-command document creation** from templates
+### Streamlined Workflow  
+- **One-command document creation** from metadata-validated templates
 - **Integrated compilation** - compile to PDF and open instantly
-- **Auto-compilation** on save with live PDF refresh
-- **Smart file naming** with customizable formats and conflict prevention
+- **Smart file naming** - generates clean filenames like `meeting.A7bX9K.typ`
 - **Cross-platform** support (Linux, macOS, Windows)
+- **Modern UI integration** with vim.ui.select/input when available
 
 ### Professional Output
-- **Beautiful typography** with proper heading hierarchy and spacing
-- **Code highlighting** for inline and block code with syntax support
-- **Professional links** with elegant underlines and hover effects  
-- **Consistent icons** using Nerd Fonts for visual clarity
-- **Metadata boxes** for structured document properties
+- **Beautiful typography** with professional font stacks and consistent styling
+- **Metadata-driven content** - templates use native Typst metadata for dynamic content
+- **Template consistency** - shared styling and utilities across all templates
+- **Clean document structure** with proper heading hierarchy and spacing
 
 ## Installation
 
@@ -96,29 +95,31 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 ```lua
 {
   "gl1tchc0d3r/typstwriter.nvim",
+  branch = "feature-twriter-link", -- Use the v2 branch
   ft = "typst",
-  cmd = { "TWriterNew", "TWriterCompile", "TWriterOpen", "TWriterBoth" },
+  cmd = {
+    "TypstWriterNew",
+    "TypstWriterCompile", 
+    "TypstWriterOpen",
+    "TypstWriterBoth",
+    "TypstWriterStatus",
+    "TypstWriterTemplates"
+  },
   keys = {
-    { "<leader>tn", "<cmd>TWriterNew<cr>", desc = "New document from template" }
+    { "<leader>Tn", "<cmd>TypstWriterNew<cr>", desc = "New document" },
+    { "<leader>Tc", "<cmd>TypstWriterCompile<cr>", desc = "Compile", ft = "typst" },
+    { "<leader>To", "<cmd>TypstWriterOpen<cr>", desc = "Open PDF", ft = "typst" },
+    { "<leader>Tb", "<cmd>TypstWriterBoth<cr>", desc = "Compile & open", ft = "typst" },
   },
   config = function()
     require('typstwriter').setup({
       notes_dir = "~/Documents/notes",
+      template_dir = "~/Documents/notes/templates/v2",
     })
   end
 }
 ```
 
-### With [packer.nvim](https://github.com/wbthomason/packer.nvim)
-
-```lua
-use {
-  'gl1tchc0d3r/typstwriter.nvim',
-  config = function()
-    require('typstwriter').setup()
-  end
-}
-```
 
 ## Configuration
 
@@ -128,34 +129,37 @@ use {
 require('typstwriter').setup({
   -- Directory settings
   notes_dir = "~/Documents/notes",
-  template_dir = nil, -- defaults to notes_dir/typst-templates
+  template_dir = nil, -- defaults to notes_dir/templates/v2
   
-  -- File naming
-  filename_format = "{name}.{code}.typ", -- {name}, {code}, {date}
-  code_length = 6,
+  -- Template preferences
+  default_template_type = "note",
+  auto_date = true, -- Automatically set date to today in metadata
+  
+  -- Filename generation
+  use_random_suffix = true, -- Add random suffix for uniqueness
+  random_suffix_length = 6, -- Length of random suffix
   
   -- Compilation settings
   auto_compile = false,
   open_after_compile = true,
   
+  -- Metadata validation
+  require_metadata = true, -- Validate metadata in templates
+  required_fields = { "type", "title" }, -- Required metadata fields
+  
   -- Key mappings (set to false to disable)
   keymaps = {
-    new_document = "<leader>tn",
-    compile = "<leader>tp",
-    open_pdf = "<leader>to", 
-    compile_and_open = "<leader>tb",
-    pdf_generate = "<leader>pd",  -- Alternative short mapping
-    pdf_open = "<leader>po",      -- Alternative short mapping
+    new_document = "<leader>Tn",
+    compile = "<leader>Tc",
+    open_pdf = "<leader>To", 
+    compile_and_open = "<leader>Tb",
   },
-  
-  -- UI preferences
-  use_modern_ui = true, -- Use vim.ui.select/input when available
   
   -- Notifications
   notifications = {
     enabled = true,
     level = vim.log.levels.INFO,
-  }
+  },
 })
 ```
 
@@ -165,8 +169,9 @@ require('typstwriter').setup({
 require('typstwriter').setup({
   notes_dir = "~/my-notes",
   template_dir = "~/my-notes/templates",
-  filename_format = "{name}-{date}.typ",
   auto_compile = true,
+  use_random_suffix = false, -- Disable random suffixes
+  auto_date = false, -- Don't auto-update dates
   keymaps = {
     new_document = "<leader>nn",
     compile = "<leader>cc",
@@ -182,12 +187,12 @@ require('typstwriter').setup({
 
 | Command | Description |
 |---------|-------------|
-| `:TWriterNew` | Create new document from template |
-| `:TWriterCompile` | Compile current document to PDF |
-| `:TWriterOpen` | Open PDF of current document |
-| `:TWriterBoth` | Compile and open PDF |
-| `:TWriterStatus` | Show compilation status and system info |
-| `:TWriterTemplates` | List available templates |
+| `:TypstWriterNew` | Create new document from template |
+| `:TypstWriterCompile` | Compile current document to PDF |
+| `:TypstWriterOpen` | Open PDF of current document |
+| `:TypstWriterBoth` | Compile and open PDF |
+| `:TypstWriterStatus` | Show system status and metadata info |
+| `:TypstWriterTemplates` | List available templates |
 
 ### Watch Mode & Auto-Compilation
 
@@ -211,38 +216,36 @@ With this configuration:
 
 | Key | Mode | Action |
 |-----|------|--------|
-| `<leader>tn` | Normal | Create new document |
-| `<leader>tp` | Normal (Typst files) | Compile to PDF |
-| `<leader>to` | Normal (Typst files) | Open PDF |
-| `<leader>tb` | Normal (Typst files) | Compile and open |
-| `<leader>pd` | Normal (Typst files) | Generate PDF |
-| `<leader>po` | Normal (Typst files) | Open PDF |
+| `<leader>Tn` | Normal | Create new document |
+| `<leader>Tc` | Normal (Typst files) | Compile to PDF |
+| `<leader>To` | Normal (Typst files) | Open PDF |
+| `<leader>Tb` | Normal (Typst files) | Compile and open |
 
 ### Basic Workflow
 
-1. **Create a new document**: Press `<leader>tn` or run `:TWriterNew`
-2. **Select template**: Choose from dynamically discovered templates
-3. **Enter document name**: Provide a name for your document
-4. **Edit**: The new file opens automatically
-5. **Compile**: Press `<leader>tp` or run `:TWriterCompile`
-6. **View**: Press `<leader>to` or run `:TWriterOpen` to view the PDF
+1. **Create a new document**: Press `<leader>Tn` or run `:TypstWriterNew`
+2. **Select template**: Choose from metadata-validated templates
+3. **Enter document title**: Provide a title for your document
+4. **Edit**: The new file opens automatically with updated metadata
+5. **Compile**: Press `<leader>Tc` or run `:TypstWriterCompile`
+6. **View**: Press `<leader>To` or run `:TypstWriterOpen` to view the PDF
 
 ## Templates
 
-### Template Structure
+### Metadata-Driven Template Structure
 
-Templates should be `.typ` files in your template directory. The plugin:
+Templates are `.typ` files with native Typst metadata using the `#metadata()` function. The plugin:
 - Discovers all `.typ` files automatically
-- Skips `base.typ` (reserved for shared utilities)
-- Capitalizes template names for display
+- Validates metadata using `typst query` command
+- Requires `type` and `title` fields for proper functionality
+- Skips templates without valid metadata (with warnings)
 
 ### Example Template Directory
 
 ```
-typst-templates/
-├── base.typ       # Shared styles and utilities (ignored by plugin)
+templates/v2/
 ├── meeting.typ    # Meeting notes template
-├── human.typ      # Human profile template for documenting people
+├── note.typ       # General note template
 ├── project.typ    # Project documentation template
 ├── article.typ    # Article template
 └── report.typ     # Report template
@@ -251,58 +254,70 @@ typst-templates/
 ### Creating Custom Templates
 
 1. Create a `.typ` file in your template directory
-2. Use the included `base.typ` for consistent styling:
+2. Include metadata at the top using the `#metadata()` function:
 
 ```typst
-#import "typst-templates/base.typ": base
-
-#show: base.with(
+#metadata((
+  type: "custom",
   title: "My Custom Template",
-  date: datetime.today(),
-  doc_type: "custom",
-  status: "draft",
+  description: "Template for custom documents",
+  author: "Your Name",
+  date: "2025-01-01",
   tags: ("custom", "template"),
-  properties: (
-    ("Author", ""),
-    ("Version", "1.0"),
-    ("Category", "General"),
-  ),
-)
+)) <}
 
-= #nerd_icon("") Main Section
+// Template content starts here
+= Document Title
 
-// Your template content here
-// Use nerd_icon() function for consistent icons:
-// #nerd_icon("") for projects
-// #nerd_icon("") for meetings
-// #nerd_icon("") for notes
-// #nerd_icon("") for action items
-// #nerd_icon("") for calendar events
+This is my custom template content.
+
+== Section 1
+
+Content here will be preserved when creating new documents.
+
+== Section 2
+
+The metadata above will be updated automatically when creating new documents.
 ```
 
-### Using Icons in Templates
+### Metadata Fields
 
-The base template provides a `nerd_icon()` function for consistent icon display:
+Required fields for all templates:
+- `type`: Document type (e.g., "meeting", "note", "project")
+- `title`: Template title (updated when creating new documents)
 
+Optional fields:
+- `description`: Template description for selection UI
+- `author`: Document author
+- `date`: Document date (auto-updated if `auto_date` is enabled)
+- `tags`: Array of tags for categorization
+- Any other fields your templates need
+
+### Template Examples
+
+**Meeting Template** (`meeting.typ`):
 ```typst
-// Use icons in headings
-= #nerd_icon("") Meeting Agenda
-= #nerd_icon("") Discussion Points
-= #nerd_icon("") Action Items
+#metadata((
+  type: "meeting",
+  title: "Meeting Template",
+  description: "Template for meeting notes",
+  date: "2025-01-01",
+  tags: ("meeting", "work"),
+)) <}
 
-// Or in content
-Project status: #nerd_icon("") In Progress
+= Meeting: #metadata((<}).title
+
+*Date:* #metadata((<}).date  
+*Type:* #metadata((<}).type
+
+== Agenda
+
+== Discussion
+
+== Action Items
+
+== Next Steps
 ```
-
-Common icon examples:
-- `` - Projects and work
-- `` - Meetings and discussions  
-- `` - Tasks and action items
-- `` - Calendar and dates
-- `` - Notes and documentation
-- `` - Ideas and concepts
-- `` - Settings and configuration
-- `` - Files and documents
 
 ## Requirements
 
@@ -331,13 +346,14 @@ cargo install --git https://github.com/typst/typst --tag v0.10.0 typst-cli
 
 ### Check plugin status
 ```vim
-:TWriterStatus  # Shows compilation status and system requirements
+:TypstWriterStatus  # Shows compilation status and system requirements
 ```
 
 ### Template not found
 - Ensure templates are in the correct directory (`template_dir`)
-- Check that files have `.typ` extension
-- Run `:TWriterTemplates` to list available templates
+- Check that files have `.typ` extension and valid metadata
+- Run `:TypstWriterTemplates` to list available templates
+- Check metadata validation with `:TypstWriterStatus`
 
 ### Font/Icon Issues
 ```bash
