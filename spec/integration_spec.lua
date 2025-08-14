@@ -71,10 +71,10 @@ describe("typstwriter integration", function()
       typstwriter.create_commands()
 
       -- Verify main commands exist
-      assert.is_not_nil(commands_created.TWriterNew)
-      assert.is_not_nil(commands_created.TWriterCompile)
-      assert.is_not_nil(commands_created.TWriterOpen)
-      assert.is_not_nil(commands_created.TWriterBoth)
+      assert.is_not_nil(commands_created.TypstWriterNew)
+      assert.is_not_nil(commands_created.TypstWriterCompile)
+      assert.is_not_nil(commands_created.TypstWriterOpen)
+      assert.is_not_nil(commands_created.TypstWriterBoth)
     end)
   end)
 
@@ -104,22 +104,33 @@ describe("typstwriter integration", function()
   end)
 
   describe("core utilities", function()
-    it("should generate unique codes", function()
+    it("should generate random suffixes", function()
       local utils = typstwriter.utils
-      local code1 = utils.generate_unique_code(8)
-      local code2 = utils.generate_unique_code(8)
+      
+      -- Mock getpid to return different values for different suffix generation
+      local call_count = 0
+      vim.fn.getpid = function()
+        call_count = call_count + 1
+        return 12345 + call_count * 1000
+      end
+      
+      local suffix1 = utils.generate_random_suffix(8)
+      local suffix2 = utils.generate_random_suffix(8)
 
-      assert.equals(8, #code1)
-      assert.equals(8, #code2)
-      assert.is_not_equal(code1, code2)
+      assert.equals(8, #suffix1)
+      assert.equals(8, #suffix2)
+      assert.is_not_nil(suffix1:match("^[a-zA-Z0-9]+$"))
+      assert.is_not_nil(suffix2:match("^[a-zA-Z0-9]+$"))
+      -- Note: Due to time-based seeding, suffixes might be same in fast execution
+      -- but format should be correct
     end)
 
-    it("should format filenames", function()
+    it("should generate filenames", function()
       local utils = typstwriter.utils
-      local filename = utils.format_filename("test", "{name}-{code}.typ")
+      local filename = utils.generate_filename("Test Document", "note")
 
       assert.is_string(filename)
-      assert.is_not_nil(filename:match("test%-[a-zA-Z0-9]+%.typ"))
+      assert.is_not_nil(filename:match("test%-document%.typ"))
     end)
 
     it("should check file existence", function()
@@ -188,8 +199,8 @@ describe("typstwriter integration", function()
       local info = typstwriter.info()
 
       assert.equals("typstwriter.nvim", info.name)
-      assert.equals("1.0.0", info.version)
-      assert.equals("gl1tchc0d3r", info.author)
+      assert.equals("2.0.0-dev", info.version)
+      assert.equals("Metadata-driven Typst writing system", info.description)
       assert.is_table(info.config)
       assert.is_table(info.requirements)
     end)

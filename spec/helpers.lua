@@ -20,6 +20,22 @@ helpers.mock_vim = function()
       glob = function()
         return {}
       end,
+      json_decode = function(str)
+        -- Simple JSON parser for testing
+        if str:match("^%[%s*{.*}%s*%]$") then
+          return {{
+            func = "metadata",
+            value = {
+              type = "test",
+              title = "Test Document",
+              date = "2024-01-15",
+              status = "draft",
+              tags = {"test"}
+            }
+          }}
+        end
+        return nil
+      end,
       fnamemodify = function(path, modifier)
         if modifier == ":t:r" then
           return path:match("([^/]+)%.") or path
@@ -31,6 +47,9 @@ helpers.mock_vim = function()
       end,
       getftime = function()
         return os.time()
+      end,
+      getpid = function()
+        return 12345
       end,
       executable = function()
         return 1
@@ -122,6 +141,24 @@ helpers.mock_vim = function()
       fn()
     end,
     v = { shell_error = 0 },
+    json = {
+      decode = function(str)
+        -- Modern JSON decode for testing
+        if str:match("^%[%s*{.*}%s*%]$") then
+          return {{
+            func = "metadata",
+            value = {
+              type = "test",
+              title = "Test Document",
+              date = "2024-01-15",
+              status = "draft",
+              tags = {"test"}
+            }
+          }}
+        end
+        return nil
+      end
+    },
   }
 
   -- Make vim global available
@@ -143,21 +180,22 @@ end
 helpers.create_test_template = function(name, content)
   content = content
     or [[
-#import "typst-templates/base.typ": base
+// Test Template v2 - Metadata-driven
 
-#show: base.with(
+#metadata((
+  type: "test",
   title: "Test Template",
-  date: datetime.today(),
-  doc_type: "test",
+  date: "2024-01-15",
   status: "draft",
   tags: ("test",),
-  properties: (
-    ("Author", "Test"),
-  ),
-)
+))
+
+#set document(title: "Test Template")
+#set page(paper: "a4", margin: 2cm)
+#set text(size: 11pt)
 
 = Test Content
-This is a test template.
+This is a test template using metadata.
 ]]
   -- In real tests, this would create actual files
   -- For now, we'll just return the content

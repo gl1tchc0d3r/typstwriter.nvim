@@ -95,12 +95,12 @@ describe("typstwriter plugin", function()
 
       -- Check all commands were created
       local expected_commands = {
-        "TWriterNew",
-        "TWriterCompile",
-        "TWriterOpen",
-        "TWriterBoth",
-        "TWriterStatus",
-        "TWriterTemplates",
+        "TypstWriterNew",
+        "TypstWriterCompile",
+        "TypstWriterOpen",
+        "TypstWriterBoth",
+        "TypstWriterStatus",
+        "TypstWriterTemplates",
       }
 
       for _, cmd in ipairs(expected_commands) do
@@ -117,9 +117,9 @@ describe("typstwriter plugin", function()
 
       assert.is_table(info)
       assert.equals("typstwriter.nvim", info.name)
-      assert.equals("1.0.0", info.version)
+      assert.equals("2.0.0-dev", info.version)
       assert.is_string(info.description)
-      assert.equals("gl1tchc0d3r", info.author)
+      assert.equals("Metadata-driven Typst writing system", info.description)
       assert.is_table(info.config)
       assert.is_table(info.requirements)
     end)
