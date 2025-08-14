@@ -106,14 +106,14 @@ describe("typstwriter integration", function()
   describe("core utilities", function()
     it("should generate random suffixes", function()
       local utils = typstwriter.utils
-      
+
       -- Mock getpid to return different values for different suffix generation
       local call_count = 0
       vim.fn.getpid = function()
         call_count = call_count + 1
         return 12345 + call_count * 1000
       end
-      
+
       local suffix1 = utils.generate_random_suffix(8)
       local suffix2 = utils.generate_random_suffix(8)
 

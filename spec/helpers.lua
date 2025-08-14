@@ -23,16 +23,18 @@ helpers.mock_vim = function()
       json_decode = function(str)
         -- Simple JSON parser for testing
         if str:match("^%[%s*{.*}%s*%]$") then
-          return {{
-            func = "metadata",
-            value = {
-              type = "test",
-              title = "Test Document",
-              date = "2024-01-15",
-              status = "draft",
-              tags = {"test"}
-            }
-          }}
+          return {
+            {
+              func = "metadata",
+              value = {
+                type = "test",
+                title = "Test Document",
+                date = "2024-01-15",
+                status = "draft",
+                tags = { "test" },
+              },
+            },
+          }
         end
         return nil
       end,
@@ -145,19 +147,21 @@ helpers.mock_vim = function()
       decode = function(str)
         -- Modern JSON decode for testing
         if str:match("^%[%s*{.*}%s*%]$") then
-          return {{
-            func = "metadata",
-            value = {
-              type = "test",
-              title = "Test Document",
-              date = "2024-01-15",
-              status = "draft",
-              tags = {"test"}
-            }
-          }}
+          return {
+            {
+              func = "metadata",
+              value = {
+                type = "test",
+                title = "Test Document",
+                date = "2024-01-15",
+                status = "draft",
+                tags = { "test" },
+              },
+            },
+          }
         end
         return nil
-      end
+      end,
     },
   }
 
