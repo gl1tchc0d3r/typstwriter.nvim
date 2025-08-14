@@ -1,5 +1,5 @@
 --- Configuration system for typstwriter.nvim
---- 
+---
 local M = {}
 
 --- Default configuration
@@ -11,7 +11,7 @@ M.defaults = {
   -- Template preferences
   default_template_type = "note",
   auto_date = true, -- Automatically set date to today
-  
+
   -- Filename generation
   use_random_suffix = true, -- Add random suffix to filenames for uniqueness
   random_suffix_length = 6, -- Length of random suffix

@@ -8,7 +8,7 @@ local M = {}
 --- @return string Generated filename
 function M.generate_filename(title, doc_type)
   local safe_title = title:gsub("[^%w%s%-]", ""):gsub("%s+", "-"):lower()
-  
+
   -- Add random suffix if enabled
   if config.get("use_random_suffix") then
     local suffix = M.generate_random_suffix(config.get("random_suffix_length") or 6)
@@ -24,14 +24,14 @@ end
 function M.generate_random_suffix(length)
   local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   local result = ""
-  
+
   math.randomseed(os.time() + vim.fn.getpid())
-  
+
   for i = 1, length do
     local idx = math.random(1, #chars)
     result = result .. chars:sub(idx, idx)
   end
-  
+
   return result
 end
 

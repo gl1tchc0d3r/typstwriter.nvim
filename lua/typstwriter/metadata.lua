@@ -18,7 +18,7 @@ function M.parse_metadata(filepath)
   if vim.v.shell_error ~= 0 then
     return nil
   end
-  
+
   -- Extract JSON from output (handle case where shell outputs extra info)
   -- Look for JSON array pattern at the end
   local json_start = output:find('%[%{"func"')
@@ -27,28 +27,26 @@ function M.parse_metadata(filepath)
   end
 
   -- Parse JSON output with robust fallback
-  local result, parse_error
-  
+  local result
+
   -- Try vim.json.decode first (modern API, available since Neovim 0.7+)
   if vim.json and vim.json.decode then
     local success
     success, result = pcall(vim.json.decode, output)
     if not success then
-      parse_error = "vim.json.decode failed: " .. tostring(result)
       result = nil
     end
   end
-  
+
   -- Fallback to vim.fn.json_decode if needed
   if not result and vim.fn and vim.fn.json_decode then
     local success
     success, result = pcall(vim.fn.json_decode, output)
     if not success then
-      parse_error = "vim.fn.json_decode failed: " .. tostring(result)
       result = nil
     end
   end
-  
+
   -- Handle parsing failure or invalid result
   if not result or type(result) ~= "table" then
     return nil

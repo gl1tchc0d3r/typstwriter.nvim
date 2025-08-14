@@ -168,15 +168,15 @@ function M.test()
 
   -- Test template discovery
   print("Templates:")
-  local templates = templates.get_available_templates()
-  for name, template in pairs(templates) do
+  local template_list = templates.get_available_templates()
+  for name, template in pairs(template_list) do
     print("  " .. name .. ": " .. template.description)
   end
   print("")
 
   -- Test metadata extraction
   print("Metadata test:")
-  for name, template in pairs(templates) do
+  for name, template in pairs(template_list) do
     local meta = metadata.parse_metadata(template.path)
     if meta then
       print("  ✓ " .. name .. " has valid metadata")
