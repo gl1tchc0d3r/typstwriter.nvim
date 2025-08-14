@@ -279,11 +279,33 @@ end
 -- Auto-setup which-key integration when plugin is loaded
 vim.defer_fn(setup_which_key, 100)
 
+-- V2 System Integration (new metadata-driven approach)
+local v2_init = require("typstwriter.v2_init")
+
+--- Setup v2 system alongside legacy
+--- @param v2_config table|nil V2-specific configuration
+function M.setup_v2(v2_config)
+  v2_init.setup(v2_config)
+end
+
+--- Test v2 functionality
+function M.test_v2()
+  v2_init.test()
+end
+
+--- Get v2 system info
+function M.info_v2()
+  return v2_init.info()
+end
+
 -- Export public API
 M.templates = templates
 M.compiler = compiler
 M.linking = linking
 M.config = config
 M.utils = utils
+
+-- V2 API
+M.v2 = v2_init
 
 return M
