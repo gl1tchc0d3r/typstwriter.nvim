@@ -10,18 +10,47 @@ function M.parse_metadata(filepath)
     return nil
   end
 
-  -- Use typst query to extract metadata
-  local cmd = string.format('typst query --format json "%s" metadata', filepath)
+  -- Use typst query to extract metadata (disable color to avoid ANSI codes)
+  local cmd = string.format('typst --color never query --format json "%s" metadata', filepath)
   local output = vim.fn.system(cmd)
 
   -- Check if command succeeded
   if vim.v.shell_error ~= 0 then
     return nil
   end
+  
+  -- Extract JSON from output (handle case where shell outputs extra info)
+  -- Look for JSON array pattern at the end
+  local json_start = output:find('%[%{"func"')
+  if json_start then
+    output = output:sub(json_start)
+  end
 
-  -- Parse JSON output
-  local ok, result = pcall(vim.fn.json_decode, output)
-  if not ok or not result or type(result) ~= "table" then
+  -- Parse JSON output with robust fallback
+  local result, parse_error
+  
+  -- Try vim.json.decode first (modern API, available since Neovim 0.7+)
+  if vim.json and vim.json.decode then
+    local success
+    success, result = pcall(vim.json.decode, output)
+    if not success then
+      parse_error = "vim.json.decode failed: " .. tostring(result)
+      result = nil
+    end
+  end
+  
+  -- Fallback to vim.fn.json_decode if needed
+  if not result and vim.fn and vim.fn.json_decode then
+    local success
+    success, result = pcall(vim.fn.json_decode, output)
+    if not success then
+      parse_error = "vim.fn.json_decode failed: " .. tostring(result)
+      result = nil
+    end
+  end
+  
+  -- Handle parsing failure or invalid result
+  if not result or type(result) ~= "table" then
     return nil
   end
 
