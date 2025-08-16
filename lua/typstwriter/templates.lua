@@ -115,8 +115,7 @@ function M.create_document(template_name, title, custom_metadata)
 
   -- Fix import paths for documents created in notes_dir
   -- Ensure XDG package paths are used in created documents
-  local package_dir = paths.get_package_dir()
-  content = M.update_template_imports(content, package_dir)
+  content = M.update_template_imports(content, notes_dir)
 
   -- Write new document
   local new_file = io.open(filepath, "w")
@@ -287,7 +286,6 @@ end
 --- @return boolean, string Success status and message
 function M.install_templates()
   local template_dir = config.get("template_dir")
-  local package_dir = paths.get_package_dir()
 
   -- Ensure template directory exists
   if not paths.ensure_directory(template_dir) then
@@ -323,7 +321,7 @@ function M.install_templates()
       source_handle:close()
 
       -- Update import paths to use XDG package location
-      content = M.update_template_imports(content, package_dir)
+      content = M.update_template_imports(content, template_dir)
 
       -- Write updated template
       local dest_handle = io.open(dest_file, "w")
@@ -342,19 +340,21 @@ function M.install_templates()
   end
 end
 
---- Update template import paths to use XDG package location
+--- Update template import paths to use correct relative paths from document location to XDG package
 --- @param content string Template content
---- @param package_dir string XDG package directory
+--- @param from_dir string Directory where the document is located (typically notes_dir)
 --- @return string Updated content with import paths that work with Typst
-function M.update_template_imports(content, package_dir)
-  -- Calculate relative path from notes_dir to package_dir
-  local notes_dir = config.get("notes_dir")
-  local relative_path = paths.get_relative_path(notes_dir, package_dir)
+function M.update_template_imports(content, from_dir)
+  local package_dir = paths.get_package_dir()
+  local relative_path = paths.get_relative_path(from_dir, package_dir)
 
-  -- Replace relative package imports with correct relative paths to XDG location
-  -- Match both "./packages/typstwriter/" and "../packages/typstwriter/"
+  -- Replace various import patterns with correct relative paths to XDG location
+  -- Match "./packages/typstwriter/", "../packages/typstwriter/", and absolute-style paths
   content = content:gsub('"%.%.%/packages%/typstwriter%/', '"' .. relative_path .. "/")
   content = content:gsub('"%.%/packages%/typstwriter%/', '"' .. relative_path .. "/")
+  -- Also match existing absolute-style XDG paths that may be incorrect
+  content = content:gsub('"[^"]*%.local/share/nvim/typstwriter/packages/typstwriter/', '"' .. relative_path .. "/")
+  content = content:gsub('"[^"]*typstwriter/packages/typstwriter/', '"' .. relative_path .. "/")
   return content
 end
 
