@@ -82,7 +82,7 @@ function M.create_commands()
   vim.api.nvim_create_user_command("TypstWriterInstallPackage", function()
     package.install_package()
   end, {
-    desc = "Install typstwriter package to template directory",
+    desc = "Install typstwriter package to XDG data directory",
   })
 
   vim.api.nvim_create_user_command("TypstWriterSetupTemplates", function()

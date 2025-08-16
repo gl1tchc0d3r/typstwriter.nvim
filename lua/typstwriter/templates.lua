@@ -114,8 +114,9 @@ function M.create_document(template_name, title, custom_metadata)
   end
 
   -- Fix import paths for documents created in notes_dir
-  -- With XDG approach, templates now use absolute paths to XDG package location
-  -- No path adjustment needed - documents inherit the absolute paths from templates
+  -- Ensure XDG package paths are used in created documents
+  local package_dir = paths.get_package_dir()
+  content = M.update_template_imports(content, package_dir)
 
   -- Write new document
   local new_file = io.open(filepath, "w")
@@ -347,6 +348,8 @@ end
 --- @return string Updated content with absolute import paths
 function M.update_template_imports(content, package_dir)
   -- Replace relative package imports with absolute paths to XDG location
+  -- Match both "./packages/typstwriter/" and "../packages/typstwriter/"
+  content = content:gsub('"%.%.%/packages%/typstwriter%/', '"' .. package_dir .. "/")
   content = content:gsub('"%.%/packages%/typstwriter%/', '"' .. package_dir .. "/")
   return content
 end
