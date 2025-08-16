@@ -112,6 +112,12 @@ function M.create_document(template_name, title, custom_metadata)
     content = M.update_template_metadata(content, title, custom_metadata)
   end
 
+  -- Fix import paths for documents created in notes_dir
+  -- Templates use "./packages/typstwriter/" but notes need "./templates/packages/typstwriter/"
+  -- NOTE: This replacement currently has issues in the Neovim plugin context
+  -- Users may need to manually fix import paths in created documents
+  content = content:gsub('"%.%/packages%/typstwriter%/', '"./templates/packages/typstwriter/')
+
   -- Write new document
   local new_file = io.open(filepath, "w")
   if not new_file then

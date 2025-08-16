@@ -78,7 +78,7 @@ function M.create_commands()
   end, {
     desc = "Show package installation status",
   })
-  
+
   vim.api.nvim_create_user_command("TypstWriterInstallPackage", function()
     package.install_package()
   end, {
@@ -162,7 +162,7 @@ function M.check_requirements()
 
   -- Ensure directories exist
   config.ensure_directories()
-  
+
   -- Check if package is installed
   if not package.is_package_installed() then
     utils.notify("typstwriter package not installed. Run :TypstWriterSetup to install.", vim.log.levels.WARN)
