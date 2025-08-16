@@ -76,6 +76,14 @@ helpers.mock_vim = function()
       confirm = function(msg, choices, default)
         return default or 1
       end,
+      stdpath = function(what)
+        if what == "data" then
+          return "/tmp/test/.local/share/nvim"
+        elseif what == "cache" then
+          return "/tmp/test/.cache/nvim"
+        end
+        return "/tmp/test/" .. what
+      end,
     },
     has = function(feature)
       -- Mock common vim features
@@ -143,6 +151,15 @@ helpers.mock_vim = function()
       fn()
     end,
     v = { shell_error = 0 },
+    env = {
+      XDG_DATA_HOME = nil,
+      XDG_CACHE_HOME = nil,
+    },
+    loop = {
+      os_uname = function()
+        return { sysname = "Linux" }
+      end,
+    },
     json = {
       decode = function(str)
         -- Modern JSON decode for testing
@@ -178,6 +195,8 @@ helpers.cleanup = function()
   package.loaded["typstwriter.utils"] = nil
   package.loaded["typstwriter.templates"] = nil
   package.loaded["typstwriter.compiler"] = nil
+  package.loaded["typstwriter.package"] = nil
+  package.loaded["typstwriter.paths"] = nil
 end
 
 -- Create temporary test files

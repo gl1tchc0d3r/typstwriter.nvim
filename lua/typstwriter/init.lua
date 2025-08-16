@@ -8,6 +8,7 @@ local config = require("typstwriter.config")
 local utils = require("typstwriter.utils")
 local templates = require("typstwriter.templates")
 local compiler = require("typstwriter.compiler")
+local package = require("typstwriter.package")
 
 --- Setup the plugin system
 --- @param user_config table|nil User configuration overrides
@@ -63,6 +64,31 @@ function M.create_commands()
     templates.show_templates()
   end, {
     desc = "List available templates",
+  })
+
+  -- Package management commands
+  vim.api.nvim_create_user_command("TypstWriterSetup", function()
+    package.setup()
+  end, {
+    desc = "Setup typstwriter package and templates",
+  })
+
+  vim.api.nvim_create_user_command("TypstWriterPackageStatus", function()
+    package.show_status()
+  end, {
+    desc = "Show package installation status",
+  })
+
+  vim.api.nvim_create_user_command("TypstWriterInstallPackage", function()
+    package.install_package()
+  end, {
+    desc = "Install typstwriter package to XDG data directory",
+  })
+
+  vim.api.nvim_create_user_command("TypstWriterSetupTemplates", function()
+    package.setup_templates()
+  end, {
+    desc = "Setup templates in template directory",
   })
 end
 
@@ -136,6 +162,11 @@ function M.check_requirements()
 
   -- Ensure directories exist
   config.ensure_directories()
+
+  -- Check if package is installed
+  if not package.is_package_installed() then
+    utils.notify("typstwriter package not installed. Run :TypstWriterSetup to install.", vim.log.levels.WARN)
+  end
 end
 
 --- Get plugin information
@@ -194,5 +225,6 @@ M.templates = templates
 M.compiler = compiler
 M.config = config
 M.utils = utils
+M.package = package
 
 return M

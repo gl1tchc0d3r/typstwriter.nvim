@@ -1,0 +1,11 @@
+# Fonts Directory
+
+This directory will contain bundled fonts for the typstwriter package:
+
+- IosevkaNerdFont-Regular.ttf (~200KB)
+- IosevkaNerdFont-Bold.ttf (~200KB)  
+- HackNerdFontMono-Regular.ttf (~750KB)
+- HackNerdFontMono-Bold.ttf (~750KB)
+- NotoColorEmoji.ttf (~10MB)
+
+Total: ~12MB for complete typography coverage.

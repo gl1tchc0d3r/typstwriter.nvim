@@ -43,8 +43,12 @@ function M.compile_current(file_path)
     end
   end
 
-  -- Compile with Typst
-  local cmd = string.format('typst compile "%s"', file_path)
+  -- Compile with Typst using home directory as root and font path for bundled fonts
+  -- This allows Typst to access the XDG package directory and discover bundled fonts
+  local home_dir = vim.fn.expand("~")
+  local package_dir = require("typstwriter.paths").get_package_dir()
+  local fonts_dir = package_dir .. "/fonts"
+  local cmd = string.format('typst compile --root "%s" --font-path "%s" "%s"', home_dir, fonts_dir, file_path)
   local success = utils.system_exec(cmd, "✓ Compiled to PDF", "✗ Compilation failed")
 
   return success

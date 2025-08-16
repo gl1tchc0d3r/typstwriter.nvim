@@ -2,6 +2,7 @@
 local metadata = require("typstwriter.metadata")
 local config = require("typstwriter.config")
 local utils = require("typstwriter.utils")
+local paths = require("typstwriter.paths")
 local M = {}
 
 --- Get available templates
@@ -111,6 +112,10 @@ function M.create_document(template_name, title, custom_metadata)
   if template.has_metadata then
     content = M.update_template_metadata(content, title, custom_metadata)
   end
+
+  -- Fix import paths for documents created in notes_dir
+  -- Ensure XDG package paths are used in created documents
+  content = M.update_template_imports(content, notes_dir)
 
   -- Write new document
   local new_file = io.open(filepath, "w")
@@ -239,6 +244,157 @@ function M.show_templates()
   print("")
   print("✓ = Has metadata, ! = No metadata")
   print("Template directory: " .. config.get("template_dir"))
+end
+
+--- Install typstwriter package to XDG-compliant location
+--- @return boolean, string Success status and message
+function M.install_package()
+  -- Ensure XDG directories exist
+  local success, error_msg = paths.ensure_typstwriter_directories()
+  if not success then
+    return false, error_msg
+  end
+
+  -- Get source and destination paths
+  local plugin_root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
+  local source_package = plugin_root .. "/packages/typstwriter"
+  local dest_package = paths.get_package_dir()
+
+  -- Check if source package exists
+  if vim.fn.isdirectory(source_package) == 0 then
+    return false, "Source package not found: " .. source_package
+  end
+
+  -- Copy package to XDG location
+  local cmd = string.format("cp -r %s/* %s/", vim.fn.shellescape(source_package), vim.fn.shellescape(dest_package))
+  local result = vim.fn.system(cmd)
+
+  if vim.v.shell_error ~= 0 then
+    return false, "Failed to copy package: " .. result
+  end
+
+  -- Verify installation
+  local installed, package_path = paths.check_package_installation()
+  if installed then
+    return true, "Package installed to: " .. package_path
+  else
+    return false, "Package installation verification failed"
+  end
+end
+
+--- Install templates to template directory with XDG package imports
+--- @return boolean, string Success status and message
+function M.install_templates()
+  local template_dir = config.get("template_dir")
+
+  -- Ensure template directory exists
+  if not paths.ensure_directory(template_dir) then
+    return false, "Failed to create template directory: " .. template_dir
+  end
+
+  -- Check if package is installed
+  local package_installed = paths.check_package_installation()
+  if not package_installed then
+    return false, "Package not installed. Run :TypstWriterInstallPackage first."
+  end
+
+  -- Get source templates from plugin
+  local plugin_root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
+  local source_templates = plugin_root .. "/templates"
+
+  if vim.fn.isdirectory(source_templates) == 0 then
+    return false, "Source templates not found: " .. source_templates
+  end
+
+  -- Copy templates and update import paths
+  local template_files = vim.fn.glob(source_templates .. "/*.typ", false, true)
+  local installed_count = 0
+
+  for _, source_file in ipairs(template_files) do
+    local filename = vim.fn.fnamemodify(source_file, ":t")
+    local dest_file = template_dir .. "/" .. filename
+
+    -- Read source template
+    local source_handle = io.open(source_file, "r")
+    if source_handle then
+      local content = source_handle:read("*all")
+      source_handle:close()
+
+      -- Update import paths to use XDG package location
+      content = M.update_template_imports(content, template_dir)
+
+      -- Write updated template
+      local dest_handle = io.open(dest_file, "w")
+      if dest_handle then
+        dest_handle:write(content)
+        dest_handle:close()
+        installed_count = installed_count + 1
+      end
+    end
+  end
+
+  if installed_count > 0 then
+    return true, string.format("Installed %d templates to: %s", installed_count, template_dir)
+  else
+    return false, "No templates were installed"
+  end
+end
+
+--- Update template import paths to use correct relative paths from document location to XDG package
+--- @param content string Template content
+--- @param from_dir string Directory where the document is located (typically notes_dir)
+--- @return string Updated content with import paths that work with Typst
+function M.update_template_imports(content, from_dir)
+  local package_dir = paths.get_package_dir()
+  local relative_path = paths.get_relative_path(from_dir, package_dir)
+
+  -- Replace various import patterns with correct relative paths to XDG location
+  -- Match "./packages/typstwriter/", "../packages/typstwriter/", and absolute-style paths
+  content = content:gsub('"%.%.%/packages%/typstwriter%/', '"' .. relative_path .. "/")
+  content = content:gsub('"%.%/packages%/typstwriter%/', '"' .. relative_path .. "/")
+  -- Also match existing absolute-style XDG paths that may be incorrect
+  content = content:gsub('"[^"]*%.local/share/nvim/typstwriter/packages/typstwriter/', '"' .. relative_path .. "/")
+  content = content:gsub('"[^"]*typstwriter/packages/typstwriter/', '"' .. relative_path .. "/")
+  return content
+end
+
+--- Complete setup: install package and templates
+--- @return boolean, string Success status and message
+function M.setup_complete()
+  utils.notify("Setting up typstwriter package system...", vim.log.levels.INFO)
+
+  -- Install package to XDG location
+  local package_success, package_msg = M.install_package()
+  if not package_success then
+    return false, "Package installation failed: " .. package_msg
+  end
+
+  utils.notify(package_msg, vim.log.levels.INFO)
+
+  -- Install templates with XDG imports
+  local template_success, template_msg = M.install_templates()
+  if not template_success then
+    return false, "Template installation failed: " .. template_msg
+  end
+
+  utils.notify(template_msg, vim.log.levels.INFO)
+
+  return true, "typstwriter package system setup complete!"
+end
+
+--- Check installation status
+--- @return table Status information
+function M.check_installation_status()
+  local package_installed, package_path = paths.check_package_installation()
+  local platform_info = paths.get_platform_info()
+
+  return {
+    package_installed = package_installed,
+    package_path = package_path,
+    template_dir = config.get("template_dir"),
+    platform = platform_info,
+    templates_count = vim.tbl_count(M.get_available_templates()),
+  }
 end
 
 return M

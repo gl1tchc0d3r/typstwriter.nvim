@@ -10,8 +10,17 @@ function M.parse_metadata(filepath)
     return nil
   end
 
-  -- Use typst query to extract metadata (disable color to avoid ANSI codes)
-  local cmd = string.format('typst --color never query --format json "%s" metadata', filepath)
+  -- Use typst query to extract metadata with home directory as root and font path for bundled fonts
+  -- (disable color to avoid ANSI codes)
+  local home_dir = vim.fn.expand("~")
+  local package_dir = require("typstwriter.paths").get_package_dir()
+  local fonts_dir = package_dir .. "/fonts"
+  local cmd = string.format(
+    'typst --color never query --format json --root "%s" --font-path "%s" "%s" metadata',
+    home_dir,
+    fonts_dir,
+    filepath
+  )
   local output = vim.fn.system(cmd)
 
   -- Check if command succeeded
@@ -19,11 +28,34 @@ function M.parse_metadata(filepath)
     return nil
   end
 
-  -- Extract JSON from output (handle case where shell outputs extra info)
-  -- Look for JSON array pattern at the end
+  -- Extract JSON from output (handle case where shell outputs extra info and warnings)
+  -- Look for JSON array pattern and extract only the JSON part
   local json_start = output:find('%[%{"func"')
-  if json_start then
-    output = output:sub(json_start)
+  if not json_start then
+    return nil
+  end
+
+  local json_part = output:sub(json_start)
+
+  -- Find the end of the main JSON array by looking for ]}] pattern
+  -- This handles nested arrays like "tags":["note"] properly
+  local json_end = json_part:find("%}%]")
+  if json_end then
+    output = json_part:sub(1, json_end + 1) -- Include the closing ]
+  else
+    -- Fallback: look for newline after a closing bracket
+    local fallback_pos = json_part:find("%]%s*\n")
+    if fallback_pos then
+      output = json_part:sub(1, fallback_pos)
+    else
+      -- Last resort: use everything up to first newline
+      local newline_pos = json_part:find("\n")
+      if newline_pos then
+        output = json_part:sub(1, newline_pos - 1)
+      else
+        output = json_part
+      end
+    end
   end
 
   -- Parse JSON output with robust fallback
