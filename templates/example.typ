@@ -1,4 +1,4 @@
-#import "typst-templates/base.typ": base
+#import "../packages/typstwriter/core/base.typ": base
 
 // COMPREHENSIVE EXAMPLE - Showcases all base.typ features
 // This demonstrates the full capabilities of the template system:
