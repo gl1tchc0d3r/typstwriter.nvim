@@ -345,12 +345,16 @@ end
 --- Update template import paths to use XDG package location
 --- @param content string Template content
 --- @param package_dir string XDG package directory
---- @return string Updated content with absolute import paths
+--- @return string Updated content with import paths that work with Typst
 function M.update_template_imports(content, package_dir)
-  -- Replace relative package imports with absolute paths to XDG location
+  -- Calculate relative path from notes_dir to package_dir
+  local notes_dir = config.get("notes_dir")
+  local relative_path = paths.get_relative_path(notes_dir, package_dir)
+
+  -- Replace relative package imports with correct relative paths to XDG location
   -- Match both "./packages/typstwriter/" and "../packages/typstwriter/"
-  content = content:gsub('"%.%.%/packages%/typstwriter%/', '"' .. package_dir .. "/")
-  content = content:gsub('"%.%/packages%/typstwriter%/', '"' .. package_dir .. "/")
+  content = content:gsub('"%.%.%/packages%/typstwriter%/', '"' .. relative_path .. "/")
+  content = content:gsub('"%.%/packages%/typstwriter%/', '"' .. relative_path .. "/")
   return content
 end
 

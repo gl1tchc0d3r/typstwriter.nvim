@@ -111,4 +111,49 @@ function M.check_package_installation()
   return false, package_dir
 end
 
+--- Calculate relative path from one directory to another
+--- @param from_dir string Starting directory
+--- @param to_dir string Target directory
+--- @return string Relative path from from_dir to to_dir
+function M.get_relative_path(from_dir, to_dir)
+  -- Normalize paths
+  from_dir = vim.fn.resolve(vim.fn.expand(from_dir))
+  to_dir = vim.fn.resolve(vim.fn.expand(to_dir))
+
+  -- Simple implementation for Unix-like paths
+  -- Split paths into components
+  local from_parts = vim.split(from_dir, "/")
+  local to_parts = vim.split(to_dir, "/")
+
+  -- Find common prefix length
+  local common_length = 0
+  for i = 1, math.min(#from_parts, #to_parts) do
+    if from_parts[i] == to_parts[i] then
+      common_length = i
+    else
+      break
+    end
+  end
+
+  -- Build relative path
+  local relative_parts = {}
+
+  -- Add ".." for each directory we need to go up
+  for i = common_length + 1, #from_parts do
+    table.insert(relative_parts, "..")
+  end
+
+  -- Add remaining parts of target path
+  for i = common_length + 1, #to_parts do
+    table.insert(relative_parts, to_parts[i])
+  end
+
+  -- Join with "/" and handle edge cases
+  if #relative_parts == 0 then
+    return "."
+  else
+    return table.concat(relative_parts, "/")
+  end
+end
+
 return M
