@@ -140,9 +140,16 @@
     margin: (top: 1.5cm, bottom: 2cm, left: 2cm, right: 2cm),
   )
   
-  // Typography - Clean minimal font stack
+  // Typography - Bundled fonts with system fallbacks
   set text(
-    font: ("Iosevka NFP", "Noto Color Emoji"),
+    font: (
+      "fonts/IosevkaNerdFont-Regular.ttf",  // Bundled: guaranteed available
+      "fonts/NotoColorEmoji.ttf",           // Bundled: perfect emoji rendering
+      "Iosevka NFP",                        // System: if available
+      "Iosevka",                            // System: base variant
+      "Noto Color Emoji",                   // System: emoji fallback
+      "monospace"                           // Ultimate fallback
+    ),
     size: 10pt,
     lang: "en"
   )
@@ -164,7 +171,13 @@
       inset: (left: 1em, rest: 0.8em),
       radius: 4pt
     )
-    set text(font: ("Iosevka NFM", "Hack Nerd Font Mono"))
+    set text(font: (
+      "fonts/HackNerdFontMono-Regular.ttf",  // Bundled: guaranteed monospace
+      "fonts/IosevkaNerdFont-Regular.ttf",   // Bundled: alternative mono
+      "Iosevka NFM",                          // System: if available
+      "Hack Nerd Font Mono",                 // System: alternative
+      "monospace"                            // Ultimate fallback
+    ))
     it
   }
   
@@ -173,7 +186,13 @@
       fill: colors.bg-subtle,
       inset: (x: 0.3em, y: 0.1em),
       radius: 2pt,
-      text(font: ("Iosevka NFM", "Hack Nerd Font Mono"), fill: colors.text-secondary, it)
+      text(font: (
+        "fonts/HackNerdFontMono-Regular.ttf",  // Bundled: guaranteed monospace
+        "fonts/IosevkaNerdFont-Regular.ttf",   // Bundled: alternative mono
+        "Iosevka NFM",                          // System: if available
+        "Hack Nerd Font Mono",                 // System: alternative
+        "monospace"                            // Ultimate fallback
+      ), fill: colors.text-secondary, it)
     )
   }
   
