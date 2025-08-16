@@ -18,12 +18,8 @@ function M.parse_metadata(filepath)
 
   -- Check if command succeeded
   if vim.v.shell_error ~= 0 then
-    print('DEBUG: typst command failed with error: ' .. vim.v.shell_error)
     return nil
   end
-  
-  -- print('DEBUG: Raw output length: ' .. #output)
-  -- print('DEBUG: Output contains [func: ' .. tostring(output:find('%[%{"func"') ~= nil))
 
   -- Extract JSON from output (handle case where shell outputs extra info and warnings)
   -- Look for JSON array pattern and extract only the JSON part
@@ -31,20 +27,27 @@ function M.parse_metadata(filepath)
   if not json_start then
     return nil
   end
-  
+
   local json_part = output:sub(json_start)
-  
-  -- Find the end of JSON array - look for closing bracket followed by newline or end
-  local json_end = json_part:find('%]')
+
+  -- Find the end of the main JSON array by looking for ]}] pattern
+  -- This handles nested arrays like "tags":["note"] properly
+  local json_end = json_part:find("%}%]")
   if json_end then
-    output = json_part:sub(1, json_end)
+    output = json_part:sub(1, json_end + 1) -- Include the closing ]
   else
-    -- Fallback: just use from start to first newline after JSON
-    local newline_pos = json_part:find('\n')
-    if newline_pos then
-      output = json_part:sub(1, newline_pos - 1)
+    -- Fallback: look for newline after a closing bracket
+    local fallback_pos = json_part:find("%]%s*\n")
+    if fallback_pos then
+      output = json_part:sub(1, fallback_pos)
     else
-      output = json_part
+      -- Last resort: use everything up to first newline
+      local newline_pos = json_part:find("\n")
+      if newline_pos then
+        output = json_part:sub(1, newline_pos - 1)
+      else
+        output = json_part
+      end
     end
   end
 
