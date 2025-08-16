@@ -140,9 +140,9 @@
     margin: (top: 1.5cm, bottom: 2cm, left: 2cm, right: 2cm),
   )
   
-  // Typography - Professional mixed fonts
+  // Typography - Clean minimal font stack
   set text(
-    font: ("Iosevka NFP", "DejaVu Sans", "FreeSans"),
+    font: ("Iosevka NFP", "Noto Color Emoji"),
     size: 10pt,
     lang: "en"
   )
@@ -164,7 +164,7 @@
       inset: (left: 1em, rest: 0.8em),
       radius: 4pt
     )
-    set text(font: ("Iosevka NFM", "Hack Nerd Font Mono", "DejaVu Sans Mono"))
+    set text(font: ("Iosevka NFM", "Hack Nerd Font Mono"))
     it
   }
   
@@ -173,7 +173,7 @@
       fill: colors.bg-subtle,
       inset: (x: 0.3em, y: 0.1em),
       radius: 2pt,
-      text(font: ("Iosevka NFM", "Hack Nerd Font Mono", "DejaVu Sans Mono"), fill: colors.text-secondary, it)
+      text(font: ("Iosevka NFM", "Hack Nerd Font Mono"), fill: colors.text-secondary, it)
     )
   }
   
@@ -262,7 +262,7 @@
         #set text(size: 9pt)
         #text(weight: "bold", size: 9pt, fill: colors.text-secondary)[PROPERTIES]
         #v(0.4em)
-        #set text(font: ("Iosevka NFM", "DejaVu Sans Mono", "FreeMono")) // Monospace for alignment
+        #set text(font: ("Iosevka NFM", "FreeMono")) // Monospace for alignment
         #grid(
           columns: (auto, 1fr),
           row-gutter: 0.4em,
