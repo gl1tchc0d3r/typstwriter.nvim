@@ -140,3 +140,12 @@ Show deprecation warnings with migration suggestions.
 - [ ] Documentation updated
 - [ ] User experience improved (fewer top-level commands)
 - [ ] Foundation ready for future PKS features
+
+## Development Log
+
+### Phase 1 Progress
+- [x] Design document created
+- [x] Branch merged early into staging (GitHub network graph experiment)
+- [ ] CLI module structure implementation (in progress)
+- [ ] Subcommand parsing and routing
+- [ ] Tab completion system
