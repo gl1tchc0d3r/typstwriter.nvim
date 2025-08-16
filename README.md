@@ -65,10 +65,11 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 ## Current Features
 
 ### Package-Based Template System
-- **Local package architecture** - Self-contained typstwriter package with modular components
-- **One-command setup** - `:TypstWriterSetup` installs everything you need
-- **Import-based templates** - Templates use structured imports from the local package
-- **Automatic path resolution** - Package is copied to your template directory for seamless imports
+- **XDG-compliant architecture** - Self-contained typstwriter package with modular components stored in system data directories
+- **Bundled professional fonts** - Complete typography system (~32MB) with Iosevka NF, Hack Nerd Font, and Noto Color Emoji
+- **One-command setup** - `:TypstWriterSetup` installs everything you need in XDG-compliant locations
+- **Cross-platform font support** - Works consistently across Linux, macOS, and Windows without requiring system font installation
+- **Import-based templates** - Templates use structured imports from the installed package system
 - **Core styling library** - Shared typography, themes, and components across all templates
 - **Template validation** - Ensures templates and package structure are properly installed
 
@@ -116,7 +117,7 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
   config = function()
     require('typstwriter').setup({
       notes_dir = "~/Documents/notes",
-      template_dir = "~/Documents/notes/templates", -- Package will be installed here
+      template_dir = "~/Documents/notes/templates", -- Templates stored here, package installed in XDG directories
     })
   end
 }
@@ -131,7 +132,7 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 require('typstwriter').setup({
   -- Directory settings
   notes_dir = "~/Documents/notes",
-  template_dir = "~/Documents/notes/templates", -- Package will be installed to template_dir/packages/
+  template_dir = "~/Documents/notes/templates", -- Templates stored here, package installed in XDG directories
   
   -- Template preferences
   default_template_type = "note",
@@ -166,7 +167,7 @@ require('typstwriter').setup({
 ```lua
 require('typstwriter').setup({
   notes_dir = "~/my-notes",
-  template_dir = "~/my-notes/templates", -- Package will install to ~/my-notes/templates/packages/
+  template_dir = "~/my-notes/templates", -- Templates stored here, package installed in XDG directories
   auto_compile = true,
   use_random_suffix = false, -- Disable random suffixes
   auto_date = false, -- Don't auto-update dates
@@ -190,17 +191,18 @@ After installing the plugin, run the setup command:
 ```
 
 This will:
-1. Copy the typstwriter package to your template directory
-2. Install ready-to-use templates with proper imports
-3. Verify everything is working correctly
+1. Install the typstwriter package to XDG-compliant directories (~/.local/share/nvim/typstwriter/)
+2. Install ready-to-use templates with proper absolute imports
+3. Bundle professional fonts for consistent typography across platforms
+4. Verify everything is working correctly
 
 ### Package System Overview
 
-The plugin uses a **local package architecture** where:
-- Templates import from `./packages/typstwriter/core/`, `./packages/typstwriter/themes/`, etc.
-- The package is copied to your `template_dir/packages/typstwriter/` directory
-- This solves import path issues when using plugin managers like Lazy
-- Templates work seamlessly with proper styling and components
+The plugin uses an **XDG-compliant package architecture** where:
+- Package and fonts are installed to system data directories (e.g., `~/.local/share/nvim/typstwriter/`)
+- Templates use absolute import paths to the XDG package installation
+- Bundled fonts ensure consistent typography without requiring system font installation
+- Cross-platform compatibility with Linux, macOS, and Windows XDG specifications
 
 ## Usage
 
@@ -265,100 +267,117 @@ With this configuration:
 
 ### Directory Structure
 
-After running `:TypstWriterSetup`, your template directory will have this structure:
+After running `:TypstWriterSetup`, the system creates:
 
+**XDG Package Installation** (e.g., `~/.local/share/nvim/typstwriter/`):
+```
+~/.local/share/nvim/typstwriter/
+├── package/
+│   ├── typst.toml           # Package manifest
+│   ├── lib.typ              # Main library entry point
+│   ├── core/                # Core styling functions
+│   │   ├── base.typ         # Base typography and layout
+│   │   ├── document.typ     # Document structure
+│   │   └── metadata.typ     # Metadata handling
+│   ├── themes/              # Theme definitions
+│   │   ├── academic.typ     # Academic document theme
+│   │   ├── modern.typ       # Modern business theme
+│   │   └── minimal.typ      # Clean minimal theme
+│   └── components/          # Reusable components
+└── fonts/                   # Bundled professional fonts (~32MB)
+    ├── IosevkaNerdFont-Regular.ttf
+    ├── HackNerdFont-Regular.ttf
+    └── NotoColorEmoji.ttf
+```
+
+**Template Directory** (your configured `template_dir`):
 ```
 templates/
-├── packages/
-│   └── typstwriter/
-│       ├── typst.toml           # Package manifest
-│       ├── core/                # Core styling functions
-│       │   ├── style.typ        # Base typography and layout
-│       │   ├── components.typ   # Reusable document components
-│       │   └── utils.typ        # Utility functions
-│       ├── themes/              # Theme definitions
-│       │   ├── academic.typ     # Academic document theme
-│       │   ├── modern.typ       # Modern business theme
-│       │   └── minimal.typ      # Clean minimal theme
-│       ├── templates/           # Template components
-│       └── components/          # Specialized components
-├── meeting.typ                  # Meeting notes template
-├── note.typ                     # General note template
-├── project.typ                  # Project documentation template
-├── article.typ                  # Article template
-└── report.typ                   # Report template
+├── meeting.typ              # Meeting notes template
+├── note.typ                 # General note template
+├── project.typ              # Project documentation template
+├── article.typ              # Article template
+└── report.typ               # Report template
 ```
 
 ### Package-Based Templates
 
-Templates use structured imports from the local package:
+Templates use absolute imports from the XDG package installation:
 
 ```typst
-#import "./packages/typstwriter/core/style.typ": *
-#import "./packages/typstwriter/themes/academic.typ": theme
+#import "/home/user/.local/share/nvim/typstwriter/package/lib.typ": *
 
-// Apply the theme and styling
-#show: theme
-#show: document_style
+#metadata((
+  title: "Document Title",
+  date: "2025-08-16",
+  status: "draft",
+  tags: ("example", "template"),
+))
+
+#show: note_template
 
 = Document Title
 
-Content using consistent styling from the package system.
+Content using consistent styling from the package system with bundled fonts.
 
 == Section with Styled Components
 
-#callout[Info][
-  This callout uses components from the package.
-]
+Callouts and other components are imported from the package.
 ```
 
 ### Creating Custom Templates
 
 1. Create a `.typ` file in your template directory
-2. Import the styling and components you need:
+2. Import the typstwriter library (paths are automatically set during template creation):
 
 ```typst
-#import "./packages/typstwriter/core/style.typ": *
-#import "./packages/typstwriter/themes/modern.typ": theme
-#import "./packages/typstwriter/components/boxes.typ": callout, warning
+#import "/home/user/.local/share/nvim/typstwriter/package/lib.typ": *
 
-#show: theme
-#show: document_style
+#metadata((
+  title: "My Custom Document",
+  type: "custom",
+  date: "2025-08-16",
+  tags: ("custom", "template"),
+))
+
+#show: note_template
 
 = My Custom Document
 
-This template uses the package system for consistent styling.
+This template uses the XDG-installed package system with bundled fonts.
 
 == Features
 
-#callout[Tip][
-  You can use any components from the package system.
-]
-
-#warning[
-  Remember to import the components you need!
-]
+- Professional typography with Iosevka NF and Hack Nerd Font
+- Consistent styling across all documents  
+- Automatic metadata display
+- Cross-platform font compatibility
 ```
 
 ### Package Components
 
-The typstwriter package provides:
+The XDG-installed typstwriter package provides:
 
-- **Core styles** (`core/style.typ`): Base typography, spacing, and layout
-- **Themes** (`themes/*.typ`): Complete document styling themes
-- **Components** (`components/*.typ`): Reusable document elements like callouts, tables, etc.
-- **Utilities** (`core/utils.typ`): Helper functions for formatting and layout
+- **Main library** (`lib.typ`): Complete entry point with all functions and templates
+- **Core styles** (`core/base.typ`): Base typography, spacing, and layout with bundled fonts
+- **Document templates** (`core/document.typ`): Note, meeting, and article templates
+- **Metadata handling** (`core/metadata.typ`): Smart metadata parsing and display
+- **Bundled fonts** (`fonts/`): Professional font files (~32MB) for consistent typography
 
 ## Requirements
 
 - **Neovim** >= 0.7.0
 - **Typst binary** - Install from [typst.app](https://typst.app) or your package manager
 - **PDF viewer** - Any system PDF viewer (`xdg-open`, `open`, `start`)
-- **Nerd Font** (recommended) - For enhanced visual appearance with icons
-  - Primary font: Iosevka Nerd Font (NFP/NFM variants)
-  - Fallback fonts: Hack Nerd Font, DejaVu Sans/Mono, or any Nerd Font
-  - Install from: https://www.nerdfonts.com/font-downloads
-  - Templates use professional font stacks for optimal rendering
+
+### Fonts (Bundled)
+
+Typstwriter includes professional fonts (~32MB) for consistent cross-platform typography:
+- **Iosevka Nerd Font** - Primary proportional and monospace fonts
+- **Hack Nerd Font Mono** - Alternative monospace font with excellent readability
+- **Noto Color Emoji** - Full color emoji support
+
+**No font installation required!** The plugin automatically provides fonts to Typst via the `--font-path` system, ensuring documents render identically across Linux, macOS, and Windows.
 
 ## Troubleshooting
 
@@ -381,39 +400,41 @@ cargo install --git https://github.com/typst/typst --tag v0.10.0 typst-cli
 ```
 
 ### Package not installed
-- Run `:TypstWriterSetup` to install the package system
-- Check `:TypstWriterPackageStatus` for installation status
-- Ensure your `template_dir` is configured correctly
+- Run `:TypstWriterSetup` to install the XDG package system
+- Check `:TypstWriterPackageStatus` for installation status  
+- Package should be installed to `~/.local/share/nvim/typstwriter/` (Linux) or equivalent XDG directories
 
 ### Template not found
 - Run `:TypstWriterSetupTemplates` to install templates
 - Check that templates are in the correct directory (`template_dir`)
-- Verify templates have proper imports (should use `./packages/typstwriter/...`)
+- Verify templates have proper absolute imports to XDG directories
 - Run `:TypstWriterTemplates` to list available templates
 
 ### Import errors in templates
 - Ensure package is installed with `:TypstWriterPackageStatus`
-- Check that templates use relative imports: `"./packages/typstwriter/core/style.typ"`
-- Verify you're editing files from within your template directory
-- Re-run `:TypstWriterSetup` if package is outdated
+- Templates should use absolute imports like `/home/user/.local/share/nvim/typstwriter/package/lib.typ`
+- Import paths are automatically set during template creation
+- Re-run `:TypstWriterSetup` if package needs updating
 
-### Font/Icon Issues
+### Font Issues (Rare)
+
+The bundled font system should work automatically. If you encounter font warnings:
+
 ```bash
-# Check available fonts in Typst
-typst fonts
+# Check if Typst can see the bundled fonts
+typst fonts | grep -E "(Iosevka|Hack|Noto)"
 
-# Look for Nerd Fonts (should see entries like:)
-# - Iosevka NFP (proportional)
-# - Iosevka NFM (monospace)
-# - Hack Nerd Font
-# - Symbols Nerd Font
+# Should show entries like:
+# - Iosevka NF (bundled)
+# - Hack Nerd Font Mono (bundled) 
+# - Noto Color Emoji (bundled)
 ```
 
-If icons don't display correctly:
-1. Install a Nerd Font from [nerdfonts.com](https://www.nerdfonts.com)
-2. Verify the font is available with `typst fonts`
-3. The templates use "Iosevka NFP/NFM" by default with fallbacks
-4. You can modify the font stacks in `base.typ` to use different fonts
+If fonts aren't loading:
+1. Check `:TypstWriterPackageStatus` - fonts should be installed to XDG directories
+2. Verify the fonts directory exists: `~/.local/share/nvim/typstwriter/fonts/`
+3. Re-run `:TypstWriterSetup` to reinstall fonts
+4. Font warnings in compilation output are often harmless fallback messages
 
 ## Contributing
 
