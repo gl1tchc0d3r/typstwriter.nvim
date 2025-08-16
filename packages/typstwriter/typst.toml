@@ -1,0 +1,14 @@
+[package]
+name = "typstwriter"
+version = "0.1.0"
+description = "Local styling library for typstwriter.nvim templates"
+authors = ["typstwriter contributors"]
+compiler = "0.11"
+license = "MIT"
+
+[dependencies]
+# No external dependencies initially - pure Typst
+
+[tool.typstwriter]
+# Future: package-specific configuration
+theme = "default"
