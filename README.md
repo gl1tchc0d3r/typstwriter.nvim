@@ -64,24 +64,25 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 
 ## Current Features
 
-### Metadata-Driven Template System
-- **Native Typst metadata** using `#metadata()` function for structured document properties
-- **Dynamic template discovery** - automatically finds and validates all `.typ` templates
-- **Metadata validation** - ensures required fields (type, title) are present
-- **Clean filename generation** with optional random suffixes for uniqueness
-- **Template introspection** using `typst query` for robust metadata extraction
+### Package-Based Template System
+- **Local package architecture** - Self-contained typstwriter package with modular components
+- **One-command setup** - `:TypstWriterSetup` installs everything you need
+- **Import-based templates** - Templates use structured imports from the local package
+- **Automatic path resolution** - Package is copied to your template directory for seamless imports
+- **Core styling library** - Shared typography, themes, and components across all templates
+- **Template validation** - Ensures templates and package structure are properly installed
 
 ### Streamlined Workflow  
-- **One-command document creation** from metadata-validated templates
+- **One-command document creation** from package-based templates
 - **Integrated compilation** - compile to PDF and open instantly
-- **Smart file naming** - generates clean filenames like `meeting.A7bX9K.typ`
+- **Smart file naming** - generates clean filenames with metadata integration
 - **Cross-platform** support (Linux, macOS, Windows)
 - **Modern UI integration** with vim.ui.select/input when available
 
 ### Professional Output
-- **Beautiful typography** with professional font stacks and consistent styling
-- **Metadata-driven content** - templates use native Typst metadata for dynamic content
-- **Template consistency** - shared styling and utilities across all templates
+- **Modular styling system** - Core styles, themes, and components in organized package structure
+- **Consistent typography** - Professional font stacks and styling across all documents
+- **Reusable components** - Import specific styling functions and themes as needed
 - **Clean document structure** with proper heading hierarchy and spacing
 
 ## Installation
@@ -91,7 +92,7 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 ```lua
 {
   "gl1tchc0d3r/typstwriter.nvim",
-  branch = "feature-twriter-link", -- Use the v2 branch
+  branch = "feature/local-package-library", -- Development branch with package system
   ft = "typst",
   cmd = {
     "TypstWriterNew",
@@ -99,18 +100,23 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
     "TypstWriterOpen",
     "TypstWriterBoth",
     "TypstWriterStatus",
-    "TypstWriterTemplates"
+    "TypstWriterTemplates",
+    "TypstWriterSetup",
+    "TypstWriterPackageStatus",
+    "TypstWriterInstallPackage",
+    "TypstWriterSetupTemplates"
   },
   keys = {
     { "<leader>Tn", "<cmd>TypstWriterNew<cr>", desc = "New document" },
     { "<leader>Tc", "<cmd>TypstWriterCompile<cr>", desc = "Compile", ft = "typst" },
     { "<leader>To", "<cmd>TypstWriterOpen<cr>", desc = "Open PDF", ft = "typst" },
     { "<leader>Tb", "<cmd>TypstWriterBoth<cr>", desc = "Compile & open", ft = "typst" },
+    { "<leader>Ts", "<cmd>TypstWriterSetup<cr>", desc = "Setup package system" },
   },
   config = function()
     require('typstwriter').setup({
       notes_dir = "~/Documents/notes",
-      template_dir = "~/Documents/notes/templates/v2",
+      template_dir = "~/Documents/notes/templates", -- Package will be installed here
     })
   end
 }
@@ -125,7 +131,7 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 require('typstwriter').setup({
   -- Directory settings
   notes_dir = "~/Documents/notes",
-  template_dir = nil, -- defaults to notes_dir/templates/v2
+  template_dir = "~/Documents/notes/templates", -- Package will be installed to template_dir/packages/
   
   -- Template preferences
   default_template_type = "note",
@@ -138,10 +144,6 @@ require('typstwriter').setup({
   -- Compilation settings
   auto_compile = false,
   open_after_compile = true,
-  
-  -- Metadata validation
-  require_metadata = true, -- Validate metadata in templates
-  required_fields = { "type", "title" }, -- Required metadata fields
   
   -- Key mappings (set to false to disable)
   keymaps = {
@@ -164,7 +166,7 @@ require('typstwriter').setup({
 ```lua
 require('typstwriter').setup({
   notes_dir = "~/my-notes",
-  template_dir = "~/my-notes/templates",
+  template_dir = "~/my-notes/templates", -- Package will install to ~/my-notes/templates/packages/
   auto_compile = true,
   use_random_suffix = false, -- Disable random suffixes
   auto_date = false, -- Don't auto-update dates
@@ -177,9 +179,32 @@ require('typstwriter').setup({
 })
 ```
 
+## Quick Start
+
+### First-Time Setup
+
+After installing the plugin, run the setup command:
+
+```vim
+:TypstWriterSetup
+```
+
+This will:
+1. Copy the typstwriter package to your template directory
+2. Install ready-to-use templates with proper imports
+3. Verify everything is working correctly
+
+### Package System Overview
+
+The plugin uses a **local package architecture** where:
+- Templates import from `./packages/typstwriter/core/`, `./packages/typstwriter/themes/`, etc.
+- The package is copied to your `template_dir/packages/typstwriter/` directory
+- This solves import path issues when using plugin managers like Lazy
+- Templates work seamlessly with proper styling and components
+
 ## Usage
 
-### Commands
+### Core Commands
 
 | Command | Description |
 |---------|-------------|
@@ -187,8 +212,17 @@ require('typstwriter').setup({
 | `:TypstWriterCompile` | Compile current document to PDF |
 | `:TypstWriterOpen` | Open PDF of current document |
 | `:TypstWriterBoth` | Compile and open PDF |
-| `:TypstWriterStatus` | Show system status and metadata info |
+| `:TypstWriterStatus` | Show system status |
 | `:TypstWriterTemplates` | List available templates |
+
+### Package Management Commands
+
+| Command | Description |
+|---------|-------------|
+| `:TypstWriterSetup` | Complete package and template setup |
+| `:TypstWriterPackageStatus` | Check package installation status |
+| `:TypstWriterInstallPackage` | Install/update package only |
+| `:TypstWriterSetupTemplates` | Install/update templates only |
 
 ### Watch Mode & Auto-Compilation
 
@@ -219,101 +253,101 @@ With this configuration:
 
 ### Basic Workflow
 
-1. **Create a new document**: Press `<leader>Tn` or run `:TypstWriterNew`
-2. **Select template**: Choose from metadata-validated templates
-3. **Enter document title**: Provide a title for your document
-4. **Edit**: The new file opens automatically with updated metadata
-5. **Compile**: Press `<leader>Tc` or run `:TypstWriterCompile`
-6. **View**: Press `<leader>To` or run `:TypstWriterOpen` to view the PDF
+1. **Setup** (first time): Run `:TypstWriterSetup` to install the package system
+2. **Create a new document**: Press `<leader>Tn` or run `:TypstWriterNew`
+3. **Select template**: Choose from available templates
+4. **Enter document title**: Provide a title for your document
+5. **Edit**: The new file opens automatically with proper imports
+6. **Compile**: Press `<leader>Tc` or run `:TypstWriterCompile`
+7. **View**: Press `<leader>To` or run `:TypstWriterOpen` to view the PDF
 
-## Templates
+## Package System Architecture
 
-### Metadata-Driven Template Structure
+### Directory Structure
 
-Templates are `.typ` files with native Typst metadata using the `#metadata()` function. The plugin:
-- Discovers all `.typ` files automatically
-- Validates metadata using `typst query` command
-- Requires `type` and `title` fields for proper functionality
-- Skips templates without valid metadata (with warnings)
-
-### Example Template Directory
+After running `:TypstWriterSetup`, your template directory will have this structure:
 
 ```
-templates/v2/
-├── meeting.typ    # Meeting notes template
-├── note.typ       # General note template
-├── project.typ    # Project documentation template
-├── article.typ    # Article template
-└── report.typ     # Report template
+templates/
+├── packages/
+│   └── typstwriter/
+│       ├── typst.toml           # Package manifest
+│       ├── core/                # Core styling functions
+│       │   ├── style.typ        # Base typography and layout
+│       │   ├── components.typ   # Reusable document components
+│       │   └── utils.typ        # Utility functions
+│       ├── themes/              # Theme definitions
+│       │   ├── academic.typ     # Academic document theme
+│       │   ├── modern.typ       # Modern business theme
+│       │   └── minimal.typ      # Clean minimal theme
+│       ├── templates/           # Template components
+│       └── components/          # Specialized components
+├── meeting.typ                  # Meeting notes template
+├── note.typ                     # General note template
+├── project.typ                  # Project documentation template
+├── article.typ                  # Article template
+└── report.typ                   # Report template
+```
+
+### Package-Based Templates
+
+Templates use structured imports from the local package:
+
+```typst
+#import "./packages/typstwriter/core/style.typ": *
+#import "./packages/typstwriter/themes/academic.typ": theme
+
+// Apply the theme and styling
+#show: theme
+#show: document_style
+
+= Document Title
+
+Content using consistent styling from the package system.
+
+== Section with Styled Components
+
+#callout[Info][
+  This callout uses components from the package.
+]
 ```
 
 ### Creating Custom Templates
 
 1. Create a `.typ` file in your template directory
-2. Include metadata at the top using the `#metadata()` function:
+2. Import the styling and components you need:
 
 ```typst
-#metadata((
-  type: "custom",
-  title: "My Custom Template",
-  description: "Template for custom documents",
-  author: "Your Name",
-  date: "2025-01-01",
-  tags: ("custom", "template"),
-)) <}
+#import "./packages/typstwriter/core/style.typ": *
+#import "./packages/typstwriter/themes/modern.typ": theme
+#import "./packages/typstwriter/components/boxes.typ": callout, warning
 
-// Template content starts here
-= Document Title
+#show: theme
+#show: document_style
 
-This is my custom template content.
+= My Custom Document
 
-== Section 1
+This template uses the package system for consistent styling.
 
-Content here will be preserved when creating new documents.
+== Features
 
-== Section 2
+#callout[Tip][
+  You can use any components from the package system.
+]
 
-The metadata above will be updated automatically when creating new documents.
+#warning[
+  Remember to import the components you need!
+]
 ```
 
-### Metadata Fields
+### Package Components
 
-Required fields for all templates:
-- `type`: Document type (e.g., "meeting", "note", "project")
-- `title`: Template title (updated when creating new documents)
+The typstwriter package provides:
 
-Optional fields:
-- `description`: Template description for selection UI
-- `author`: Document author
-- `date`: Document date (auto-updated if `auto_date` is enabled)
-- `tags`: Array of tags for categorization
-- Any other fields your templates need
-
-### Template Examples
-
-**Meeting Template** (`meeting.typ`):
-```typst
-#metadata((
-  type: "meeting",
-  title: "Meeting Template",
-  description: "Template for meeting notes",
-  date: "2025-01-01",
-  tags: ("meeting", "work"),
-)) <}
-
-= Meeting: #metadata((<}).title
-
-*Date:* #metadata((<}).date  
-*Type:* #metadata((<}).type
-
-== Agenda
-
-== Discussion
-
-== Action Items
-
-== Next Steps
-```
+- **Core styles** (`core/style.typ`): Base typography, spacing, and layout
+- **Themes** (`themes/*.typ`): Complete document styling themes
+- **Components** (`components/*.typ`): Reusable document elements like callouts, tables, etc.
+- **Utilities** (`core/utils.typ`): Helper functions for formatting and layout
 
 ## Requirements
 
@@ -342,14 +376,26 @@ cargo install --git https://github.com/typst/typst --tag v0.10.0 typst-cli
 
 ### Check plugin status
 ```vim
-:TypstWriterStatus  # Shows compilation status and system requirements
+:TypstWriterStatus        # Shows compilation status and system requirements
+:TypstWriterPackageStatus # Shows package installation status
 ```
 
+### Package not installed
+- Run `:TypstWriterSetup` to install the package system
+- Check `:TypstWriterPackageStatus` for installation status
+- Ensure your `template_dir` is configured correctly
+
 ### Template not found
-- Ensure templates are in the correct directory (`template_dir`)
-- Check that files have `.typ` extension and valid metadata
+- Run `:TypstWriterSetupTemplates` to install templates
+- Check that templates are in the correct directory (`template_dir`)
+- Verify templates have proper imports (should use `./packages/typstwriter/...`)
 - Run `:TypstWriterTemplates` to list available templates
-- Check metadata validation with `:TypstWriterStatus`
+
+### Import errors in templates
+- Ensure package is installed with `:TypstWriterPackageStatus`
+- Check that templates use relative imports: `"./packages/typstwriter/core/style.typ"`
+- Verify you're editing files from within your template directory
+- Re-run `:TypstWriterSetup` if package is outdated
 
 ### Font/Icon Issues
 ```bash
