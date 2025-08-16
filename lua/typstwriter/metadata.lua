@@ -10,10 +10,17 @@ function M.parse_metadata(filepath)
     return nil
   end
 
-  -- Use typst query to extract metadata with home directory as root for XDG access
+  -- Use typst query to extract metadata with home directory as root and font path for bundled fonts
   -- (disable color to avoid ANSI codes)
   local home_dir = vim.fn.expand("~")
-  local cmd = string.format('typst --color never query --format json --root "%s" "%s" metadata', home_dir, filepath)
+  local package_dir = require("typstwriter.paths").get_package_dir()
+  local fonts_dir = package_dir .. "/fonts"
+  local cmd = string.format(
+    'typst --color never query --format json --root "%s" --font-path "%s" "%s" metadata',
+    home_dir,
+    fonts_dir,
+    filepath
+  )
   local output = vim.fn.system(cmd)
 
   -- Check if command succeeded
