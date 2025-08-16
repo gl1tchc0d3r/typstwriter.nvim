@@ -284,6 +284,83 @@ The plugin is designed to evolve into a Personal Knowledge System with:
 - **Main branch protected** for production releases
 - **CI checks required** before merge approval
 
+## Git Workflow Patterns
+
+### Standard Feature Branch Workflow
+```bash
+# Create feature branch from staging
+git checkout staging
+git pull origin staging
+git checkout -b feature/feature-name
+
+# Develop and commit
+git add .
+git commit -m "feat: implement feature"
+git push origin feature/feature-name
+
+# Merge to staging when complete
+git checkout staging
+git merge feature/feature-name --no-ff
+git push origin staging
+
+# Clean up completed feature branch
+git branch -d feature/feature-name
+```
+
+### Early Merge + Continued Development Pattern
+```bash
+# Create and start feature
+git checkout staging
+git checkout -b feature/feature-name
+git commit -m "feat: initial implementation"
+
+# Early merge to staging (for integration or experimentation)
+git checkout staging
+git merge feature/feature-name --no-ff -m "Merge early: feature-name initial work"
+git push origin staging
+
+# Continue development on feature branch
+git checkout feature/feature-name
+# ... more commits ...
+git commit -m "feat: enhanced implementation"
+git push origin feature/feature-name
+
+# Final merge when complete
+git checkout staging
+git merge feature/feature-name --no-ff -m "Merge completed: feature-name"
+```
+
+### Branch Management Commands
+```bash
+# View branch status
+git branch -a                    # All branches
+git log --oneline --graph -10    # Visual commit history
+
+# Sync with remote
+git fetch origin                 # Get latest remote state
+git pull origin staging         # Update staging
+
+# Clean up merged branches
+git branch -d feature/old-feature    # Delete local branch
+git push origin --delete feature/old-feature  # Delete remote branch
+```
+
+### Repository Structure
+- **main**: Stable production releases
+- **staging**: Integration branch for completed features
+- **feature/***: Individual feature development branches
+- **experiment/***: Temporary branches for testing ideas
+
+### Commit Message Patterns
+```
+feat: add new feature
+fix: resolve bug in component
+docs: update documentation
+refactor: restructure code
+test: add test coverage
+chore: update dependencies
+```
+
 ## Key Files to Understand
 
 ### Core Implementation
