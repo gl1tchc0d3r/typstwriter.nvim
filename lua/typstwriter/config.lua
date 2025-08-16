@@ -52,7 +52,7 @@ function M.setup(user_config)
 
   -- Set template_dir default if not provided
   if not M.current.template_dir then
-    M.current.template_dir = M.current.notes_dir .. "/templates/v2"
+    M.current.template_dir = M.current.notes_dir .. "/templates"
   end
 
   -- Expand paths
