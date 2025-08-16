@@ -1,5 +1,14 @@
 #import "../packages/typstwriter/core/base.typ": base
 
+#metadata((
+  type: "example",
+  title: "Example Template", 
+  description: "Comprehensive feature showcase template",
+  status: "draft",
+  tags: ("example", "showcase", "template"),
+  category: "documentation",
+))
+
 // COMPREHENSIVE EXAMPLE - Showcases all base.typ features
 // This demonstrates the full capabilities of the template system:
 // - Multiple status types with automatic coloring
