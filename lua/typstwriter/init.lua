@@ -102,7 +102,6 @@ function M.setup_keymaps()
     })
   end
 
-
   if keymaps.copy_templates then
     vim.keymap.set("n", keymaps.copy_templates, function()
       vim.cmd("TypstWriter templates copyexamples")
