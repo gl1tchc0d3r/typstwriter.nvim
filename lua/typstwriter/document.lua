@@ -1,4 +1,4 @@
---- Compilation workflow for typstwriter.nvim
+--- Document workflow for typstwriter.nvim
 local metadata = require("typstwriter.metadata")
 local config = require("typstwriter.config")
 local utils = require("typstwriter.utils")

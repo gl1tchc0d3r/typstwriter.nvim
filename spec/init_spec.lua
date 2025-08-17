@@ -44,7 +44,7 @@ describe("typstwriter plugin", function()
       assert.is_not_nil(typstwriter.config)
       assert.is_not_nil(typstwriter.utils)
       assert.is_not_nil(typstwriter.templates)
-      assert.is_not_nil(typstwriter.compiler)
+      assert.is_not_nil(typstwriter.document)
     end)
   end)
 
@@ -93,21 +93,12 @@ describe("typstwriter plugin", function()
 
       typstwriter.create_commands()
 
-      -- Check all commands were created
-      local expected_commands = {
-        "TypstWriterNew",
-        "TypstWriterCompile",
-        "TypstWriterOpen",
-        "TypstWriterBoth",
-        "TypstWriterStatus",
-        "TypstWriterTemplates",
-      }
-
-      for _, cmd in ipairs(expected_commands) do
-        assert.is_not_nil(commands_created[cmd], "Command " .. cmd .. " was not created")
-        assert.is_function(commands_created[cmd].fn)
-        assert.is_not_nil(commands_created[cmd].opts.desc)
-      end
+      -- Check that the main CLI command was created
+      assert.is_not_nil(commands_created.TypstWriter, "Main TypstWriter command was not created")
+      assert.is_function(commands_created.TypstWriter.fn)
+      assert.is_not_nil(commands_created.TypstWriter.opts.desc)
+      assert.equals("*", commands_created.TypstWriter.opts.nargs)
+      assert.is_not_nil(commands_created.TypstWriter.opts.complete)
     end)
   end)
 

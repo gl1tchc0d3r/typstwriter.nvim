@@ -70,11 +70,12 @@ describe("typstwriter integration", function()
 
       typstwriter.create_commands()
 
-      -- Verify main commands exist
-      assert.is_not_nil(commands_created.TypstWriterNew)
-      assert.is_not_nil(commands_created.TypstWriterCompile)
-      assert.is_not_nil(commands_created.TypstWriterOpen)
-      assert.is_not_nil(commands_created.TypstWriterBoth)
+      -- Verify main CLI command exists
+      assert.is_not_nil(commands_created.TypstWriter)
+      assert.is_not_nil(commands_created.TypstWriter.fn)
+      assert.is_not_nil(commands_created.TypstWriter.opts)
+      assert.equals("*", commands_created.TypstWriter.opts.nargs)
+      assert.is_not_nil(commands_created.TypstWriter.opts.complete)
     end)
   end)
 
@@ -146,9 +147,9 @@ describe("typstwriter integration", function()
     end)
   end)
 
-  describe("compiler basic functionality", function()
+  describe("document workflow functionality", function()
     it("should compile typst files", function()
-      local compiler = typstwriter.compiler
+      local document = typstwriter.document
       local system_commands = {}
 
       -- Mock successful compilation
@@ -175,7 +176,7 @@ describe("typstwriter integration", function()
         return 1
       end
 
-      local success = compiler.compile_current("/test/file.typ")
+      local success = document.compile_current("/test/file.typ")
 
       assert.is_true(success)
       assert.equals(1, #system_commands)
