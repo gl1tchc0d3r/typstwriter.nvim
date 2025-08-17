@@ -43,7 +43,6 @@ M.defaults = {
 
     -- Package operations (Tp prefix)
     package_status = "<leader>Tps", -- TypstWriter package status
-    package_install = "<leader>Tpi", -- TypstWriter package install
   },
 
   -- Notifications

@@ -102,15 +102,6 @@ function M.setup_keymaps()
     })
   end
 
-  if keymaps.package_install then
-    vim.keymap.set("n", keymaps.package_install, function()
-      vim.cmd("TypstWriter package install")
-    end, {
-      noremap = true,
-      silent = true,
-      desc = "Install TypstWriter package system",
-    })
-  end
 
   if keymaps.copy_templates then
     vim.keymap.set("n", keymaps.copy_templates, function()
