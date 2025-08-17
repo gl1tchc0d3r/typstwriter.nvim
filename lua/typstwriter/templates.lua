@@ -5,7 +5,7 @@ local utils = require("typstwriter.utils")
 local paths = require("typstwriter.paths")
 local M = {}
 
---- Get available templates
+--- Get available templates (fast - no metadata parsing)
 --- @return table Map of template name to template info
 function M.get_available_templates()
   local templates = {}
@@ -23,10 +23,15 @@ function M.get_available_templates()
 
     -- Skip base templates
     if basename ~= "base" and basename ~= "base-simple" then
-      local template_info = M.get_template_info(filepath)
-      if template_info then
-        templates[basename] = template_info
-      end
+      -- Fast template info - filename is the type!
+      templates[basename] = {
+        name = basename,
+        title = utils.capitalize(basename),
+        type = basename, -- filename IS the type
+        description = utils.capitalize(basename) .. " template",
+        path = filepath,
+        has_metadata = true, -- Assume our PKM templates have metadata
+      }
     end
   end
 
@@ -179,7 +184,7 @@ function M.create_from_template()
   local template_map = {}
 
   for name, template in pairs(templates) do
-    local display = string.format("%s: %s", template.type:upper(), template.title)
+    local display = string.format("OBJECT: %s", template.title)
     table.insert(choices, display)
     template_map[display] = name
   end
