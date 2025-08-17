@@ -7,6 +7,7 @@ M.defaults = {
   -- Directory settings
   notes_dir = vim.fn.expand("~/Documents/notes"),
   template_dir = nil, -- Will default to notes_dir/templates
+  database_dir = nil, -- Will default to notes_dir/database
 
   -- Template preferences
   default_template_type = "note",
@@ -23,6 +24,15 @@ M.defaults = {
   -- Metadata validation
   require_metadata = true,
   required_fields = { "type", "title" },
+
+  -- Database settings
+  database = {
+    enabled = true,
+    filename = "typstwriter.db",     -- Database filename
+    auto_create = true,              -- Create database if doesn't exist
+    backup_enabled = true,           -- Enable automatic backups
+    backup_count = 5,                -- Number of backups to keep
+  },
 
   -- Key mappings following CLI command structure
   keymaps = {
@@ -68,9 +78,15 @@ function M.setup(user_config)
     M.current.template_dir = M.current.notes_dir .. "/templates"
   end
 
+  -- Set database_dir default if not provided
+  if not M.current.database_dir then
+    M.current.database_dir = M.current.notes_dir .. "/database"
+  end
+
   -- Expand paths
   M.current.notes_dir = vim.fn.expand(M.current.notes_dir)
   M.current.template_dir = vim.fn.expand(M.current.template_dir)
+  M.current.database_dir = vim.fn.expand(M.current.database_dir)
 
   -- Create directories if needed
   M.ensure_directories()
@@ -78,7 +94,7 @@ end
 
 --- Ensure required directories exist
 function M.ensure_directories()
-  local dirs = { M.current.notes_dir, M.current.template_dir }
+  local dirs = { M.current.notes_dir, M.current.template_dir, M.current.database_dir }
 
   for _, dir in ipairs(dirs) do
     if vim.fn.isdirectory(dir) == 0 then

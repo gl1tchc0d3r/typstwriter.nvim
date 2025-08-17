@@ -247,6 +247,50 @@ lua/typstwriter/
 └── ai.lua                # NEW: AI integration (Phase 4)
 ```
 
+## Search Strategy Research Results
+
+**Research Date**: 2025-08-17  
+**Decision**: Hybrid approach using Typst query + Ripgrep + SQLite FTS
+
+### Typst Built-in Search (`typst query`)
+**Strengths:**
+- ✅ **Metadata extraction**: `typst query metadata` - perfect for our use case
+- ✅ **Element querying**: Find headings, figures, labels, references  
+- ✅ **Structured data**: Returns JSON output
+- ✅ **Context-aware**: Understands document structure
+
+**Example**: `typst query --format json document.typ metadata`  
+**Limitations**: Can't search within document body text, single-file only, must process entire document
+
+### Ripgrep (`rg`) 
+**Strengths:**
+- ✅ **Lightning fast**: Fastest text search tool available (~10-50ms vs grep ~100-500ms)
+- ✅ **Regex support**: Powerful pattern matching
+- ✅ **Context**: `--context` flag shows surrounding lines
+- ✅ **JSON output**: `--json` flag for structured results
+
+**Perfect for**: Content search, link discovery (`[[links]]`, `@references`, `#link()`), context extraction
+
+### SQLite Full-Text Search (FTS5)
+**Strengths:**
+- ✅ **Integrated**: Works within our database
+- ✅ **Ranked results**: Relevance scoring  
+- ✅ **Boolean queries**: Complex search expressions
+- ✅ **Snippets**: Automatic excerpt generation
+
+### **Recommended Hybrid Strategy**
+1. **Metadata Extraction**: `typst query metadata` (most reliable)
+2. **Content Search**: `ripgrep` (fastest for full-text search)
+3. **Link Discovery**: `ripgrep` with regex patterns (real-time accuracy)
+4. **Database Integration**: Store results for caching and complex queries
+5. **FTS Enhancement**: Add SQLite FTS5 when collection grows large
+
+**Implementation Priority**:
+1. **Phase 1**: Ripgrep-based search (immediate speed)
+2. **Phase 2**: Typst query for metadata (reliability)  
+3. **Phase 3**: Database caching for performance (scalability)
+4. **Phase 4**: FTS5 for complex queries (advanced search)
+
 ## Key Implementation Notes
 
 ### Database Dependencies
