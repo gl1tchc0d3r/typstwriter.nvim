@@ -14,12 +14,26 @@ A metadata-driven Typst writing system for Neovim that serves as a complete term
 - **Privacy-first**: Local processing, your data stays local
 - **Progressive enhancement**: Starting with templates, evolving toward AI-assisted knowledge management
 
+---
+
+## 📚 Documentation
+
+| Section | Description |
+|---------|-------------|
+| **[📦 Installation](installation.html)** | Get typstwriter.nvim up and running |
+| **[⚙️ Configuration](configuration.html)** | Customize your setup and preferences |
+| **[💻 Commands](commands.html)** | Learn all available commands |
+| **[📝 Templates](templates.html)** | Work with Typst templates |
+| **[🔧 Development](development.html)** | Technical docs for contributors |
+
+---
+
 ## Quick Start
 
-1. **[Installation](installation.html)** - Get typstwriter.nvim up and running
-2. **[Configuration](configuration.html)** - Customize your setup
-3. **[Commands](commands.html)** - Learn the available commands
-4. **[Templates](templates.html)** - Work with Typst templates
+1. **[Install](installation.html)** the plugin and Typst binary
+2. **[Configure](configuration.html)** your preferences (optional)
+3. **Create your first document** with `:TypstWriterNew`
+4. **Compile and view** with `:TypstWriterBoth`
 
 ## Features
 

@@ -3,8 +3,8 @@ description: "A metadata-driven Typst writing system for Neovim"
 baseurl: "/typstwriter.nvim"
 url: "https://gl1tchc0d3r.github.io"
 
-# Theme - clean and minimal
-theme: jekyll-theme-minimal
+# Theme - Cayman with custom navigation
+theme: jekyll-theme-cayman
 
 # GitHub integration
 github:

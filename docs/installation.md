@@ -3,6 +3,8 @@ layout: default
 title: Installation
 ---
 
+{% include navigation.md %}
+
 # Installation
 
 ## Prerequisites
