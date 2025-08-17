@@ -31,11 +31,12 @@ These are the most frequently used commands for working with documents:
 
 ### Template Management
 
-Commands for working with templates:
+Commands for working with PKM templates:
 
 | Command | Description |
 |---------|-------------|
 | `:TypstWriter templates list` | List all available templates |
+| `:TypstWriter templates copyexamples` | Copy PKM template examples to user directory |
 
 ### Package Management
 
@@ -45,7 +46,6 @@ Commands for managing the typstwriter package system:
 |---------|-------------|
 | `:TypstWriter package status` | Show package installation status |
 | `:TypstWriter package install` | Install typstwriter package to XDG location |
-| `:TypstWriter package templates` | Setup templates with XDG package imports |
 
 ### System Operations
 
@@ -159,14 +159,44 @@ Lists all available templates with their metadata status.
 ```
 Available templates:
 ======================
-  ✓ article      Article Template for longer-form writing
+  ✓ person       Person contact and relationship tracking
   ✓ meeting      Meeting Notes Template with participant tracking
   ✓ note         Quick Note Template for daily thoughts
-  ! old-template Legacy template without metadata
+  ✓ guide        Step-by-step guide documentation
+  ✓ project      Project planning and tracking
+  ✓ book         Book notes and reviews
+  ✓ idea         Idea capture and development
+  ✓ decision     Decision records and rationale
 
 ✓ = Has metadata, ! = No metadata
-Template directory: /home/user/Documents/notes/templates/v2
+Template directory: /home/user/Documents/notes/templates
 ```
+
+#### `:TypstWriter templates copyexamples`
+Copies the 8 PKM template examples to your user template directory.
+
+**PKM Template Types:**
+- **Person** - Contact info, relationships, interaction history
+- **Note** - General knowledge capture with sources
+- **Meeting** - Structured meeting records with participants
+- **Guide** - How-to documentation with prerequisites
+- **Project** - Project planning with timelines and resources
+- **Book** - Book notes with progress tracking
+- **Idea** - Idea development with impact/effort analysis
+- **Decision** - Decision records with stakeholders and context
+
+**Process:**
+1. Ensures your template directory exists
+2. Verifies the package system is installed
+3. Copies 8 PKM template files to your template directory
+4. Updates import paths to use your XDG package location
+5. Reports number of templates installed
+
+**Features:**
+- Templates are fully customizable after copying
+- Rich metadata schemas specific to each document type
+- Consistent professional styling via universal template system
+- Smart property display based on document type
 
 ### Package Commands
 
@@ -257,7 +287,7 @@ The command system supports intelligent tab completion at every level:
 " → Shows: install, status, templates
 
 :TypstWriter templates <Tab>
-" → Shows: list
+" → Shows: copyexamples, list
 ```
 
 ## Migration from Old Commands
@@ -275,7 +305,7 @@ The new CLI structure replaces the previous individual commands:
 | `:TypstWriterSetup` | `:TypstWriter setup` |
 | `:TypstWriterPackageStatus` | `:TypstWriter package status` |
 | `:TypstWriterInstallPackage` | `:TypstWriter package install` |
-| `:TypstWriterSetupTemplates` | `:TypstWriter package templates` |
+| `:TypstWriterSetupTemplates` | `:TypstWriter templates copyexamples` |
 
 ## Error Handling
 

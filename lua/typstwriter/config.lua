@@ -39,6 +39,7 @@ M.defaults = {
 
     -- Template operations (Tt prefix)
     list_templates = "<leader>Ttl", -- TypstWriter templates list
+    copy_templates = "<leader>Ttc", -- TypstWriter templates copyexamples
 
     -- Package operations (Tp prefix)
     package_status = "<leader>Tps", -- TypstWriter package status

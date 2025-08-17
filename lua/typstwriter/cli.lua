@@ -143,6 +143,7 @@ function M.show_help(path)
     print("  open                      Open PDF of current document")
     print("  both                      Compile and open PDF of current document")
     print("  templates list            List available templates")
+    print("  templates copyexamples    Copy example templates to user directory")
     print("  package status            Show package installation status")
     print("  setup                     Complete system setup")
     print("  status                    Show system status")
@@ -188,9 +189,14 @@ function M.setup()
     require("typstwriter.package").install_package()
   end, { desc = "Install typstwriter package" })
 
-  M.register_command("package.templates", function(args, opts)
-    require("typstwriter.package").setup_templates()
-  end, { desc = "Setup templates with XDG package imports" })
+  M.register_command("templates.copyexamples", function(args, opts)
+    local success, message = require("typstwriter.templates").install_templates()
+    if success then
+      utils.notify(message, vim.log.levels.INFO)
+    else
+      utils.notify(message, vim.log.levels.ERROR)
+    end
+  end, { desc = "Copy example templates to user directory" })
 
   -- System operations
   M.register_command("setup", function(args, opts)

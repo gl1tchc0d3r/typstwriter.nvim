@@ -84,11 +84,12 @@ If you share this philosophy, welcome to the experiment. If you're looking for a
 - **🔧 Terminal-native** - Everything stays in Neovim, no GUI dependencies
 - **🎯 Cross-platform** - Works on Linux, macOS, and Windows
 
-### Template System
-- **Professional templates** - Notes, meetings, articles, reports
-- **Consistent styling** - Shared typography and themes across documents
-- **Smart metadata** - Automatic dates, tags, and document properties
-- **Easy customization** - Create your own templates with package imports
+### PKM Template System
+- **8 PKM document types** - Person, Note, Meeting, Guide, Project, Book, Idea, Decision
+- **Comprehensive metadata** - Rich, type-specific properties for structured knowledge
+- **Consistent styling** - Universal template system with professional typography
+- **User customizable** - Copy examples to your template directory and modify as needed
+- **Smart automation** - Automatic property display based on document type
 
 ## Quick Start
 
@@ -137,6 +138,7 @@ typstwriter.nvim uses a unified CLI-style command structure:
 | `:TypstWriter status` | Show system status |
 | `:TypstWriter setup` | Complete system setup |
 | `:TypstWriter templates list` | List available templates |
+| `:TypstWriter templates copyexamples` | Copy PKM template examples |
 | `:TypstWriter package status` | Show package status |
 
 **Tab completion available at every level** - try `:TypstWriter <Tab>` to explore!
@@ -150,6 +152,7 @@ typstwriter.nvim uses a unified CLI-style command structure:
 | `<leader>Ts` | Setup package system |
 | `<leader>Th` | Show help |
 | `<leader>Ttl` | List templates |
+| `<leader>Ttc` | Copy template examples |
 | `<leader>Tps` | Package status |
 | `<leader>Tpi` | Package install |
 

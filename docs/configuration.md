@@ -111,6 +111,7 @@ require("typstwriter").setup({
 - `setup`: Setup package system
 - `help`: Show help
 - `list_templates`: List available templates
+- `copy_templates`: Copy PKM template examples
 - `package_status`: Show package status
 - `package_install`: Install package system
 
@@ -144,6 +145,7 @@ require("typstwriter").setup({
     
     -- Templates and packages
     list_templates = "<leader>tl",
+    copy_templates = "<leader>tc",
     package_status = "<leader>ps",
     package_install = "<leader>pi"
   }
