@@ -3,8 +3,6 @@ layout: default
 title: Configuration
 ---
 
-{% include navigation.md %}
-
 # Configuration
 
 typstwriter.nvim uses a deep merge configuration system with sensible defaults. All configuration is optional.

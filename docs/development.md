@@ -3,8 +3,6 @@ layout: default
 title: Development
 ---
 
-{% include navigation.md %}
-
 # Development Documentation
 
 Welcome to the development documentation for typstwriter.nvim. This section contains technical information for contributors and advanced users.
