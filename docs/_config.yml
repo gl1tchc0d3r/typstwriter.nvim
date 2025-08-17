@@ -41,6 +41,7 @@ kramdown:
 include:
   - _pages
   - assets
+  - _layouts
 
 exclude:
   - "*.tmp"
