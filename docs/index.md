@@ -32,8 +32,9 @@ A metadata-driven Typst writing system for Neovim that serves as a complete term
 
 1. **[Install](installation.html)** the plugin and Typst binary
 2. **[Configure](configuration.html)** your preferences (optional)
-3. **Create your first document** with `:TypstWriterNew`
-4. **Compile and view** with `:TypstWriterBoth`
+3. **Run one-time setup** with `:TypstWriter setup`
+4. **Create your first document** with `:TypstWriter new`
+5. **Compile and view** with `:TypstWriter both`
 
 ## Features
 

@@ -187,7 +187,7 @@ The plugin validates your configuration and will show warnings for:
 
 Check configuration status with:
 ```vim
-:TypstWriterStatus
+:TypstWriter status
 ```
 
 ## Next Steps

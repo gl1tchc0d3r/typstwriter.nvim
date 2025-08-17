@@ -113,25 +113,33 @@ pacman -S typst             # Arch Linux
 
 ### 3. One-Time Setup
 ```vim
-:TypstWriterSetup    " Installs package system and templates
+:TypstWriter setup    " Installs package system and templates
 ```
 
 ### 4. Create Your First Document
 ```vim
-:TypstWriterNew      " Choose template, enter title, start writing!
+:TypstWriter new      " Choose template, enter title, start writing!
 ```
 
 
 ## Basic Usage
 
 ### Core Commands
+
+typstwriter.nvim uses a unified CLI-style command structure:
+
 | Command | Description |
 |---------|-------------|
-| `:TypstWriterNew` | Create new document from template |
-| `:TypstWriterCompile` | Compile current document to PDF |
-| `:TypstWriterOpen` | Open PDF of current document |
-| `:TypstWriterBoth` | Compile and open PDF |
-| `:TypstWriterStatus` | Show system status |
+| `:TypstWriter new` | Create new document from template |
+| `:TypstWriter compile` | Compile current document to PDF |
+| `:TypstWriter open` | Open PDF of current document |
+| `:TypstWriter both` | Compile and open PDF |
+| `:TypstWriter status` | Show system status |
+| `:TypstWriter setup` | Complete system setup |
+| `:TypstWriter templates list` | List available templates |
+| `:TypstWriter package status` | Show package status |
+
+**Tab completion available at every level** - try `:TypstWriter <Tab>` to explore!
 
 ### Default Keymaps
 | Key | Action |
