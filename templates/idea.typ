@@ -1,4 +1,4 @@
-#import "@preview/typstwriter:0.1.0": pkm-template
+#import "../../.local/share/nvim/typstwriter/packages/typstwriter/lib.typ": pkm-template
 
 #metadata((
   type: "idea",
