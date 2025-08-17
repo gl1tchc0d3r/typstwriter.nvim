@@ -87,6 +87,12 @@ function M.close()
   end
 end
 
+--- Get current database connection
+--- @return any Database connection or nil
+function M.get_connection()
+  return db
+end
+
 --- Create database schema
 function M.ensure_schema()
   if not db then
