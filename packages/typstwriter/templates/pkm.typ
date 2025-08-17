@@ -48,7 +48,7 @@
         ("Genre", meta.at("genre", default: "")),
         ("Pages", str(meta.at("pages", default: 0))),
         ("Current Page", str(meta.at("current_page", default: 0))),
-        ("Rating", meta.at("rating", default: 0) > 0 ? str(meta.rating) + "/5" : "Not rated"),
+        ("Rating", if meta.at("rating", default: 0) > 0 { str(meta.rating) + "/5" } else { "Not rated" }),
         ("Started", meta.at("started_date", default: "")),
         ("ISBN", meta.at("isbn", default: "")),
       )
@@ -72,7 +72,7 @@
       properties = (
         ("Decision Date", meta.at("decision_date", default: "")),
         ("Impact Level", meta.at("impact_level", default: "medium")),
-        ("Reversible", meta.at("reversible", default: true) ? "Yes" : "No"),
+        ("Reversible", if meta.at("reversible", default: true) { "Yes" } else { "No" }),
         ("Deadline", meta.at("deadline", default: "")),
         ("Stakeholders", if meta.at("stakeholders", default: ()).len() > 0 { meta.stakeholders.join(", ") } else { "TBD" }),
         ("Context", meta.at("context", default: "")),

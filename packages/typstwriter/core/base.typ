@@ -140,14 +140,11 @@
     margin: (top: 1.5cm, bottom: 2cm, left: 2cm, right: 2cm),
   )
   
-  // Typography - Bundled fonts with system fallbacks
+  // Typography - Bundled fonts only (no system fallbacks to avoid warnings)
   set text(
     font: (
       "Iosevka NF",                         // Bundled: guaranteed available via --font-path
-      "Noto Color Emoji",                   // Bundled: perfect emoji rendering
-      "Iosevka NFP",                        // System: if available
-      "Iosevka",                            // System: base variant
-      "monospace"                           // Ultimate fallback
+      "Noto Color Emoji"                    // Bundled: perfect emoji rendering
     ),
     size: 10pt,
     lang: "en"
@@ -172,9 +169,7 @@
     )
     set text(font: (
       "Hack Nerd Font Mono",                 // Bundled: guaranteed monospace via --font-path
-      "Iosevka NF",                          // Bundled: alternative mono
-      "Iosevka NFM",                          // System: if available
-      "monospace"                            // Ultimate fallback
+      "Iosevka NF"                           // Bundled: alternative mono
     ))
     it
   }
@@ -186,9 +181,7 @@
       radius: 2pt,
       text(font: (
         "Hack Nerd Font Mono",                 // Bundled: guaranteed monospace via --font-path
-        "Iosevka NF",                          // Bundled: alternative mono
-        "Iosevka NFM",                          // System: if available
-        "monospace"                            // Ultimate fallback
+        "Iosevka NF"                           // Bundled: alternative mono
       ), fill: colors.text-secondary, it)
     )
   }
@@ -278,7 +271,7 @@
         #set text(size: 9pt)
         #text(weight: "bold", size: 9pt, fill: colors.text-secondary)[PROPERTIES]
         #v(0.4em)
-        #set text(font: ("Iosevka NFM", "FreeMono")) // Monospace for alignment
+        #set text(font: ("Hack Nerd Font Mono", "Iosevka NF")) // Bundled monospace for alignment
         #grid(
           columns: (auto, 1fr),
           row-gutter: 0.4em,
