@@ -67,6 +67,13 @@ function M.file_exists(filepath)
   return vim.fn.filereadable(filepath) == 1
 end
 
+--- Check if directory exists
+--- @param dirpath string Path to check
+--- @return boolean True if directory exists
+function M.dir_exists(dirpath)
+  return vim.fn.isdirectory(dirpath) == 1
+end
+
 --- Get platform-appropriate PDF opener
 --- @return string|nil PDF opener command
 function M.get_pdf_opener()

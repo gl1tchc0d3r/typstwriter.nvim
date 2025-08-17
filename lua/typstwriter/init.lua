@@ -112,6 +112,57 @@ function M.setup_keymaps()
     })
   end
 
+  -- Search operations
+  if keymaps.search then
+    vim.keymap.set("n", keymaps.search, function()
+      vim.cmd("TypstWriter search")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Search documents",
+    })
+  end
+
+  if keymaps.recent then
+    vim.keymap.set("n", keymaps.recent, function()
+      vim.cmd("TypstWriter recent")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Show recent documents",
+    })
+  end
+
+  if keymaps.stats then
+    vim.keymap.set("n", keymaps.stats, function()
+      vim.cmd("TypstWriter stats")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Show document statistics",
+    })
+  end
+
+  if keymaps.refresh_index then
+    vim.keymap.set("n", keymaps.refresh_index, function()
+      vim.cmd("TypstWriter refresh")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Refresh document index",
+    })
+  end
+
+  if keymaps.rebuild_index then
+    vim.keymap.set("n", keymaps.rebuild_index, function()
+      vim.cmd("TypstWriter rebuild")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Rebuild document index",
+    })
+  end
+
   -- Buffer-specific keymaps for Typst files
   local function setup_buffer_keymaps()
     local opts = { buffer = true, silent = true }

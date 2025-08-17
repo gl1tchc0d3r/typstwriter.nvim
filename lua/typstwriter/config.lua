@@ -51,6 +51,13 @@ M.defaults = {
     list_templates = "<leader>Ttl", -- TypstWriter templates list
     copy_templates = "<leader>Ttc", -- TypstWriter templates copyexamples
 
+    -- Search operations (TS prefix)
+    search = "<leader>TS", -- TypstWriter search
+    recent = "<leader>TSr", -- TypstWriter recent
+    stats = "<leader>TSs", -- TypstWriter stats
+    refresh_index = "<leader>TSi", -- TypstWriter refresh
+    rebuild_index = "<leader>TSI", -- TypstWriter rebuild
+
     -- Package operations (Tp prefix)
     package_status = "<leader>Tps", -- TypstWriter package status
   },
