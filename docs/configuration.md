@@ -21,10 +21,23 @@ require("typstwriter").setup({
   require_metadata = true,
   required_fields = { "type", "title" },
   keymaps = {
-    new_document = "<leader>Tn",
-    compile = "<leader>Tp", 
-    open_pdf = "<leader>To",
-    compile_and_open = "<leader>Tb"
+    -- Main commands
+    new_document = "<leader>Tn",        -- TypstWriter new
+    setup = "<leader>Ts",               -- TypstWriter setup
+    help = "<leader>Th",                -- TypstWriter help
+
+    -- Document operations (Td prefix)
+    compile = "<leader>Tdc",            -- TypstWriter compile
+    open_pdf = "<leader>Tdo",           -- TypstWriter open
+    compile_and_open = "<leader>Tdb",   -- TypstWriter both
+    status = "<leader>Tds",             -- TypstWriter status
+
+    -- Template operations (Tt prefix)
+    list_templates = "<leader>Ttl",     -- TypstWriter templates list
+
+    -- Package operations (Tp prefix)
+    package_status = "<leader>Tps",     -- TypstWriter package status
+    package_install = "<leader>Tpi",    -- TypstWriter package install
   }
 })
 ```
@@ -92,10 +105,20 @@ require("typstwriter").setup({
 - **Scope**: Typst files only (except `new_document` which is global)
 
 **Available keymaps**:
-- `new_document`: Create new document (global)
+
+**Main commands (always available)**:
+- `new_document`: Create new document
+- `setup`: Setup package system
+- `help`: Show help
+- `list_templates`: List available templates
+- `package_status`: Show package status
+- `package_install`: Install package system
+
+**Document operations (Typst files only)**:
 - `compile`: Compile current document
 - `open_pdf`: Open PDF of current document
 - `compile_and_open`: Compile and open PDF
+- `status`: Show document status
 
 **Disable all keymaps**:
 ```lua
@@ -108,10 +131,21 @@ require("typstwriter").setup({
 ```lua
 require("typstwriter").setup({
   keymaps = {
+    -- Main commands
     new_document = "<leader>nn",
+    setup = "<leader>ns",
+    help = "<leader>nh",
+    
+    -- Document operations
     compile = "<leader>cc",
     open_pdf = "<leader>oo",
-    compile_and_open = "<leader>cb"
+    compile_and_open = "<leader>cb",
+    status = "<leader>cs",
+    
+    -- Templates and packages
+    list_templates = "<leader>tl",
+    package_status = "<leader>ps",
+    package_install = "<leader>pi"
   }
 })
 ```

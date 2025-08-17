@@ -142,12 +142,24 @@ typstwriter.nvim uses a unified CLI-style command structure:
 **Tab completion available at every level** - try `:TypstWriter <Tab>` to explore!
 
 ### Default Keymaps
+
+#### Main Commands (Always Available)
 | Key | Action |
-|-----|---------|
+|-----|--------|
 | `<leader>Tn` | Create new document |
-| `<leader>Tc` | Compile to PDF (Typst files only) |
-| `<leader>To` | Open PDF (Typst files only) |
-| `<leader>Tb` | Compile and open (Typst files only) |
+| `<leader>Ts` | Setup package system |
+| `<leader>Th` | Show help |
+| `<leader>Ttl` | List templates |
+| `<leader>Tps` | Package status |
+| `<leader>Tpi` | Package install |
+
+#### Document Operations (Typst Files Only)
+| Key | Action |
+|-----|--------|
+| `<leader>Tdc` | Compile to PDF |
+| `<leader>Tdo` | Open PDF |
+| `<leader>Tdb` | Compile and open |
+| `<leader>Tds` | Document status |
 
 **For detailed configuration, commands, templates, and troubleshooting, see the [complete documentation](https://gl1tchc0d3r.github.io/typstwriter.nvim/).**
 

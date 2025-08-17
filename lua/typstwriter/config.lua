@@ -24,12 +24,25 @@ M.defaults = {
   require_metadata = true,
   required_fields = { "type", "title" },
 
-  -- Key mappings for v2 commands
+  -- Key mappings following CLI command structure
   keymaps = {
-    new_document = "<leader>Tn", -- TypstWriterNew
-    compile = "<leader>Tp", -- TypstWriterCompile
-    open_pdf = "<leader>To", -- TypstWriterOpen
-    compile_and_open = "<leader>Tb", -- TypstWriterBoth
+    -- Main commands
+    new_document = "<leader>Tn", -- TypstWriter new
+    setup = "<leader>Ts", -- TypstWriter setup
+    help = "<leader>Th", -- TypstWriter help
+
+    -- Document operations (Td prefix)
+    compile = "<leader>Tdc", -- TypstWriter compile
+    open_pdf = "<leader>Tdo", -- TypstWriter open
+    compile_and_open = "<leader>Tdb", -- TypstWriter both
+    status = "<leader>Tds", -- TypstWriter status
+
+    -- Template operations (Tt prefix)
+    list_templates = "<leader>Ttl", -- TypstWriter templates list
+
+    -- Package operations (Tp prefix)
+    package_status = "<leader>Tps", -- TypstWriter package status
+    package_install = "<leader>Tpi", -- TypstWriter package install
   },
 
   -- Notifications

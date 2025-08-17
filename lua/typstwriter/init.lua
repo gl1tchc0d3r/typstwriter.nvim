@@ -51,14 +51,64 @@ function M.setup_keymaps()
     return
   end
 
-  -- Global keymap for creating new documents
+  -- Global keymaps (always available)
   if keymaps.new_document then
     vim.keymap.set("n", keymaps.new_document, function()
-      templates.create_from_template()
+      vim.cmd("TypstWriter new")
     end, {
       noremap = true,
       silent = true,
       desc = "Create new Typst document",
+    })
+  end
+
+  if keymaps.setup then
+    vim.keymap.set("n", keymaps.setup, function()
+      vim.cmd("TypstWriter setup")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Setup TypstWriter package system",
+    })
+  end
+
+  if keymaps.help then
+    vim.keymap.set("n", keymaps.help, function()
+      vim.cmd("TypstWriter help")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Show TypstWriter help",
+    })
+  end
+
+  if keymaps.list_templates then
+    vim.keymap.set("n", keymaps.list_templates, function()
+      vim.cmd("TypstWriter templates list")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "List available templates",
+    })
+  end
+
+  if keymaps.package_status then
+    vim.keymap.set("n", keymaps.package_status, function()
+      vim.cmd("TypstWriter package status")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Show package installation status",
+    })
+  end
+
+  if keymaps.package_install then
+    vim.keymap.set("n", keymaps.package_install, function()
+      vim.cmd("TypstWriter package install")
+    end, {
+      noremap = true,
+      silent = true,
+      desc = "Install TypstWriter package system",
     })
   end
 
@@ -67,30 +117,27 @@ function M.setup_keymaps()
     local opts = { buffer = true, silent = true }
 
     if keymaps.compile then
-      vim.keymap.set(
-        "n",
-        keymaps.compile,
-        document.compile_current,
-        vim.tbl_extend("force", opts, { desc = "Compile Typst to PDF" })
-      )
+      vim.keymap.set("n", keymaps.compile, function()
+        vim.cmd("TypstWriter compile")
+      end, vim.tbl_extend("force", opts, { desc = "Compile Typst to PDF" }))
     end
 
     if keymaps.open_pdf then
-      vim.keymap.set(
-        "n",
-        keymaps.open_pdf,
-        document.open_pdf,
-        vim.tbl_extend("force", opts, { desc = "Open Typst PDF" })
-      )
+      vim.keymap.set("n", keymaps.open_pdf, function()
+        vim.cmd("TypstWriter open")
+      end, vim.tbl_extend("force", opts, { desc = "Open Typst PDF" }))
     end
 
     if keymaps.compile_and_open then
-      vim.keymap.set(
-        "n",
-        keymaps.compile_and_open,
-        document.compile_and_open,
-        vim.tbl_extend("force", opts, { desc = "Compile and open PDF" })
-      )
+      vim.keymap.set("n", keymaps.compile_and_open, function()
+        vim.cmd("TypstWriter both")
+      end, vim.tbl_extend("force", opts, { desc = "Compile and open PDF" }))
+    end
+
+    if keymaps.status then
+      vim.keymap.set("n", keymaps.status, function()
+        vim.cmd("TypstWriter status")
+      end, vim.tbl_extend("force", opts, { desc = "Show document status" }))
     end
   end
 

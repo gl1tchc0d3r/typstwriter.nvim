@@ -137,11 +137,24 @@ M.defaults = {
   open_after_compile = true,
   require_metadata = true,
   required_fields = { "type", "title" },
-  keymaps = { -- keymap mappings
-    new_document = "<leader>Tn",
-    compile = "<leader>Tp", 
-    open_pdf = "<leader>To",
-    compile_and_open = "<leader>Tb"
+  keymaps = { -- keymap mappings following CLI structure
+    -- Main commands
+    new_document = "<leader>Tn",        -- TypstWriter new
+    setup = "<leader>Ts",               -- TypstWriter setup
+    help = "<leader>Th",                -- TypstWriter help
+
+    -- Document operations (Td prefix)
+    compile = "<leader>Tdc",            -- TypstWriter compile
+    open_pdf = "<leader>Tdo",           -- TypstWriter open
+    compile_and_open = "<leader>Tdb",   -- TypstWriter both
+    status = "<leader>Tds",             -- TypstWriter status
+
+    -- Template operations (Tt prefix)
+    list_templates = "<leader>Ttl",     -- TypstWriter templates list
+
+    -- Package operations (Tp prefix)
+    package_status = "<leader>Tps",     -- TypstWriter package status
+    package_install = "<leader>Tpi",    -- TypstWriter package install
   }
 }
 ```
@@ -231,12 +244,24 @@ The plugin uses a unified CLI-style command interface with subcommands, similar 
 - **Future-ready** - designed for upcoming PKS features
 
 
-### Default Keymaps (Typst files only)
+### Default Keymaps
+
+#### Main Commands (Always Available)
 ```vim
-<leader>Tn    " New document (global)
-<leader>Tp    " Compile (Typst buffers)
-<leader>To    " Open PDF (Typst buffers)
-<leader>Tb    " Compile and open (Typst buffers)
+<leader>Tn     " New document
+<leader>Ts     " Setup package system
+<leader>Th     " Show help
+<leader>Ttl    " List templates
+<leader>Tps    " Package status
+<leader>Tpi    " Package install
+```
+
+#### Document Operations (Typst Files Only)
+```vim
+<leader>Tdc    " Compile
+<leader>Tdo    " Open PDF
+<leader>Tdb    " Compile and open
+<leader>Tds    " Document status
 ```
 
 ## Future Architecture (PKS Evolution)
