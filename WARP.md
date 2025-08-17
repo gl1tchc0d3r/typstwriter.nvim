@@ -17,12 +17,15 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 ### Module Structure
 ```
 lua/typstwriter/
-├── init.lua          # Main entry point, plugin setup, command creation
+├── init.lua          # Main entry point, plugin setup, CLI command creation
+├── cli.lua           # CLI command parser, routing, and tab completion
 ├── config.lua        # Configuration management with defaults and validation
 ├── templates.lua     # Template discovery, validation, and document creation
-├── compiler.lua      # Typst compilation, PDF opening, status checking
+├── document.lua      # Document workflow (compile, open, status)
 ├── metadata.lua      # Native Typst metadata parsing using `typst query`
 ├── utils.lua         # Utility functions (filename generation, system checks)
+├── package.lua       # XDG package system for fonts and templates
+├── paths.lua         # Cross-platform path management
 └── linking.lua       # Future: Document linking system
 ```
 
@@ -36,7 +39,7 @@ lua/typstwriter/
 
 ### Testing
 ```bash
-# Run passing integration tests (7 tests - production ready)
+# Run passing integration tests (8 tests - production ready)
 make test
 
 # Run all tests (includes incomplete unit tests)
@@ -106,8 +109,8 @@ make uninstall
 The project uses a **pragmatic two-tier testing approach**:
 
 ### Production Tests (`spec/integration_spec.lua`)
-- **Status**: 7 passing tests, 0 failures - **production ready**
-- **Coverage**: Plugin setup, commands, config, utilities, compiler
+- **Status**: 8 passing tests, 0 failures - **production ready**
+- **Coverage**: Plugin setup, CLI commands, config, utilities, document workflow
 - **Used by**: CI/CD pipeline for reliability assurance
 - **Command**: `make test`
 
@@ -134,7 +137,7 @@ M.defaults = {
   open_after_compile = true,
   require_metadata = true,
   required_fields = { "type", "title" },
-  keymaps = { -- v2 command mappings
+  keymaps = { -- keymap mappings
     new_document = "<leader>Tn",
     compile = "<leader>Tp", 
     open_pdf = "<leader>To",
@@ -195,7 +198,7 @@ Templates are `.typ` files with native Typst metadata blocks:
 - **Auto-compilation** on save (optional)
 
 ### Status Information
-The `TypstWriterStatus` command provides comprehensive system diagnostics:
+The `:TypstWriter status` command provides comprehensive system diagnostics:
 - File existence checks (Typst file, PDF file)
 - System requirements (Typst binary, PDF opener)
 - Metadata status (presence, validation, fields)
@@ -204,15 +207,29 @@ The `TypstWriterStatus` command provides comprehensive system diagnostics:
 
 ## Commands & User Interface
 
-### Core Commands
+### Unified CLI Command Structure
+
+The plugin uses a unified CLI-style command interface with subcommands, similar to `git`, `docker`, or `kubectl`:
+
 ```vim
-:TypstWriterNew        " Create document from template  
-:TypstWriterCompile    " Compile current document to PDF
-:TypstWriterOpen       " Open PDF of current document
-:TypstWriterBoth       " Compile and open PDF
-:TypstWriterStatus     " Show system status and metadata
-:TypstWriterTemplates  " List available templates
+:TypstWriter new              " Create document from template
+:TypstWriter compile          " Compile current document to PDF
+:TypstWriter open            " Open PDF of current document
+:TypstWriter both            " Compile and open PDF
+:TypstWriter status          " Show system status and metadata
+:TypstWriter setup           " Complete system setup
+:TypstWriter templates list  " List available templates
+:TypstWriter package status  " Show package installation status
+:TypstWriter package install " Install XDG package system
+:TypstWriter help           " Show help information
 ```
+
+### CLI Features
+- **Tab completion** at every level - try `:TypstWriter <Tab>` to explore
+- **Hierarchical organization** - commands grouped by function
+- **Intelligent error handling** - helpful messages and suggestions
+- **Future-ready** - designed for upcoming PKS features
+
 
 ### Default Keymaps (Typst files only)
 ```vim
@@ -364,18 +381,23 @@ chore: update dependencies
 ## Key Files to Understand
 
 ### Core Implementation
-- `lua/typstwriter/init.lua` - Plugin entry point and command setup
+- `lua/typstwriter/init.lua` - Plugin entry point and CLI command setup
+- `lua/typstwriter/cli.lua` - CLI command routing and tab completion
 - `lua/typstwriter/templates.lua` - Template system heart
+- `lua/typstwriter/document.lua` - Document workflow (compile, open, status)
 - `lua/typstwriter/metadata.lua` - Native Typst metadata parsing
-- `lua/typstwriter/compiler.lua` - Compilation and PDF workflow
+- `lua/typstwriter/package.lua` - XDG package system
+- `lua/typstwriter/paths.lua` - Cross-platform path management
 
 ### Configuration & Testing  
 - `lua/typstwriter/config.lua` - Configuration management
-- `spec/integration_spec.lua` - Production test suite
+- `spec/integration_spec.lua` - Production test suite (8 passing tests)
 - `Makefile` - Development workflow automation
 
 ### Documentation
 - `README.md` - Comprehensive usage guide and philosophy
+- `docs/commands.md` - Complete CLI command reference
+- `docs/CLI-COMMAND-DESIGN.md` - Design document and implementation log
 - `ROADMAP.md` - Future PKS evolution plans  
 - `TESTING.md` - Testing strategy explanation
 
