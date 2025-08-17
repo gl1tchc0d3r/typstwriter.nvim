@@ -36,7 +36,7 @@ Modern tools like **Obsidian**, **VS Code**, **Excel**, **PowerBI**, **DBeaver**
 **Typst** changed everything. It offers:
 - The simplicity of Vimwiki-like basic syntax
 - Typesetting power comparable to LaTeX on a bad day (but evolving rapidly)
-- Readable markup that doesn't sacrifice functionality
+- Readable, programmable markup that doesn't sacrifice functionality
 - A modern approach designed for documents, not web pages
 
 When I discovered Typst, it struck a chord. What if I could replace my entire Markdown vault with YAML frontmatter notes using this superior tool? The typesetting may not match LaTeX's full power yet, but it's more than sufficient for my needs and improving constantly. And so this plugin was born.
