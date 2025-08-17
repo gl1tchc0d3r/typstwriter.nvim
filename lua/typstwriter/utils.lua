@@ -156,4 +156,86 @@ function M.capitalize(str)
   return str:gsub("^%l", string.upper)
 end
 
+--- Show content in a floating window
+--- @param title string Window title
+--- @param content table|string Content lines (table of strings or single string)
+--- @param opts table|nil Optional window configuration
+--- @return integer, integer Buffer and window handles
+function M.show_in_float(title, content, opts)
+  opts = opts or {}
+
+  -- Convert content to table of lines if it's a string
+  if type(content) == "string" then
+    content = vim.split(content, "\n", { plain = true })
+  end
+
+  -- Create buffer
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, true, content)
+
+  -- Calculate window size
+  local max_width = opts.max_width or 80
+  local max_height = opts.max_height or 30
+  local min_width = opts.min_width or 40
+  local min_height = opts.min_height or 10
+
+  -- Calculate content dimensions
+  local content_width = 0
+  for _, line in ipairs(content) do
+    content_width = math.max(content_width, vim.fn.strdisplaywidth(line))
+  end
+
+  local width = math.max(min_width, math.min(max_width, content_width + 4))
+  local height = math.max(min_height, math.min(max_height, #content + 2))
+
+  -- Calculate position (center of screen)
+  local row = math.floor((vim.o.lines - height) / 2)
+  local col = math.floor((vim.o.columns - width) / 2)
+
+  -- Create floating window
+  local win_opts = {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = "minimal",
+    border = opts.border or "rounded",
+    title = title,
+    title_pos = opts.title_pos or "center",
+  }
+
+  local win = vim.api.nvim_open_win(buf, true, win_opts)
+
+  -- Set buffer options
+  vim.api.nvim_buf_set_option(buf, "modifiable", false)
+  vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
+  vim.api.nvim_buf_set_option(buf, "filetype", "typstwriter-info")
+
+  -- Set window options
+  vim.api.nvim_win_set_option(win, "wrap", false)
+  vim.api.nvim_win_set_option(win, "cursorline", true)
+
+  -- Set keymaps to close window
+  local close_keys = opts.close_keys or { "q", "<Esc>", "<CR>" }
+  for _, key in ipairs(close_keys) do
+    vim.api.nvim_buf_set_keymap(buf, "n", key, ":close<CR>", {
+      silent = true,
+      noremap = true,
+      desc = "Close TypstWriter info window",
+    })
+  end
+
+  -- Add help text at bottom if enabled
+  if opts.show_help ~= false then
+    local help_text = "Press q, <Esc>, or <Enter> to close"
+    vim.api.nvim_buf_set_extmark(buf, vim.api.nvim_create_namespace("typstwriter_help"), #content - 1, 0, {
+      virt_text = { { help_text, "Comment" } },
+      virt_text_pos = "eol",
+    })
+  end
+
+  return buf, win
+end
+
 return M

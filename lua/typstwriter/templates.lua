@@ -234,21 +234,45 @@ function M.show_templates()
   local templates = M.get_available_templates()
 
   if next(templates) == nil then
-    print("No templates found in " .. config.get("template_dir"))
+    utils.notify("No templates found in " .. config.get("template_dir"), vim.log.levels.WARN)
     return
   end
 
-  print("Available templates:")
-  print("======================")
+  -- Build content for floating window
+  local content = {
+    "Available Templates",
+    "==================",
+    "",
+  }
 
-  for name, template in pairs(templates) do
+  -- Sort templates by name for consistent display
+  local sorted_names = {}
+  for name in pairs(templates) do
+    table.insert(sorted_names, name)
+  end
+  table.sort(sorted_names)
+
+  -- Add template entries
+  for _, name in ipairs(sorted_names) do
+    local template = templates[name]
     local status = template.has_metadata and "✓" or "!"
-    print(string.format("  %s %-12s %s", status, name, template.description))
+    local line = string.format("  %s %-12s %s", status, name, template.description)
+    table.insert(content, line)
   end
 
-  print("")
-  print("✓ = Has metadata, ! = No metadata")
-  print("Template directory: " .. config.get("template_dir"))
+  -- Add legend and info
+  table.insert(content, "")
+  table.insert(content, "Legend:")
+  table.insert(content, "  ✓ = Has metadata")
+  table.insert(content, "  ! = No metadata")
+  table.insert(content, "")
+  table.insert(content, "Template directory: " .. config.get("template_dir"))
+
+  -- Show in floating window
+  utils.show_in_float("TypstWriter Templates", content, {
+    min_width = 50,
+    max_width = 100,
+  })
 end
 
 --- Install typstwriter package to XDG-compliant location

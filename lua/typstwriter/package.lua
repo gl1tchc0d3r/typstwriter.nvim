@@ -59,24 +59,46 @@ function M.show_status()
   local status = M.status()
   local platform = status.platform
 
-  print("typstwriter Package Status (XDG)")
-  print("================================")
-  print("Platform: " .. platform.os)
-  print("XDG Data Dir: " .. platform.data_dir)
-  print("Package Dir:  " .. platform.package_dir)
-  print("Template Dir: " .. status.template_dir)
-  print("")
-  print("Package installed:  " .. (status.package_installed and "✓" or "✗"))
-  print("Templates count:    " .. status.templates_count)
-  print("")
+  -- Build content for floating window
+  local content = {
+    "TypstWriter Package Status",
+    "==========================",
+    "",
+    "Platform Information:",
+    "  OS:             " .. platform.os,
+    "  XDG Data Dir:   " .. platform.data_dir,
+    "  Package Dir:    " .. platform.package_dir,
+    "  Template Dir:   " .. status.template_dir,
+    "",
+    "Installation Status:",
+    "  Package installed:  " .. (status.package_installed and "✓ Yes" or "✗ No"),
+    "  Templates count:    " .. status.templates_count,
+    "",
+  }
 
+  -- Add status-specific information
   if not status.package_installed then
-    print("⚠️  Package not installed at XDG location.")
-    print("   Run :TypstWriter setup to install with fonts and XDG compliance.")
+    table.insert(content, "Status: Not Ready")
+    table.insert(content, "⚠️  Package not installed at XDG location")
+    table.insert(content, "")
+    table.insert(content, "Next Steps:")
+    table.insert(content, "  1. Run :TypstWriter setup")
+    table.insert(content, "  2. This will install fonts and ensure XDG compliance")
   else
-    print("✅ XDG package system ready!")
-    print("📁 Package includes bundled fonts (" .. "32MB" .. ")")
+    table.insert(content, "Status: Ready")
+    table.insert(content, "✅ XDG package system is operational!")
+    table.insert(content, "📁 Package includes bundled fonts (~32MB)")
+    table.insert(content, "")
+    table.insert(content, "Available Commands:")
+    table.insert(content, "  :TypstWriter new          - Create new document")
+    table.insert(content, "  :TypstWriter templates list - List templates")
   end
+
+  -- Show in floating window
+  utils.show_in_float("Package Status", content, {
+    min_width = 60,
+    max_width = 90,
+  })
 end
 
 return M
