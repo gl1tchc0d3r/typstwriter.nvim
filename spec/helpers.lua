@@ -194,7 +194,7 @@ helpers.cleanup = function()
   package.loaded["typstwriter.config"] = nil
   package.loaded["typstwriter.utils"] = nil
   package.loaded["typstwriter.templates"] = nil
-  package.loaded["typstwriter.compiler"] = nil
+  package.loaded["typstwriter.document"] = nil
   package.loaded["typstwriter.package"] = nil
   package.loaded["typstwriter.paths"] = nil
 end

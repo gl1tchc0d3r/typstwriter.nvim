@@ -7,7 +7,7 @@ local metadata = require("typstwriter.metadata")
 local config = require("typstwriter.config")
 local utils = require("typstwriter.utils")
 local templates = require("typstwriter.templates")
-local compiler = require("typstwriter.compiler")
+local document = require("typstwriter.document")
 local package = require("typstwriter.package")
 
 --- Setup the plugin system
@@ -30,65 +30,17 @@ end
 
 --- Create user commands
 function M.create_commands()
-  vim.api.nvim_create_user_command("TypstWriterNew", function()
-    templates.create_from_template()
-  end, {
-    desc = "Create new document from template",
-  })
+  -- Setup CLI command registry
+  local cli = require("typstwriter.cli")
+  cli.setup()
 
-  vim.api.nvim_create_user_command("TypstWriterCompile", function()
-    compiler.compile_current()
+  -- Create main CLI command
+  vim.api.nvim_create_user_command("TypstWriter", function(opts)
+    cli.execute(opts)
   end, {
-    desc = "Compile current document to PDF",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterOpen", function()
-    compiler.open_pdf()
-  end, {
-    desc = "Open PDF of current document",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterBoth", function()
-    compiler.compile_and_open()
-  end, {
-    desc = "Compile and open PDF",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterStatus", function()
-    compiler.show_status()
-  end, {
-    desc = "Show system status and metadata info",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterTemplates", function()
-    templates.show_templates()
-  end, {
-    desc = "List available templates",
-  })
-
-  -- Package management commands
-  vim.api.nvim_create_user_command("TypstWriterSetup", function()
-    package.setup()
-  end, {
-    desc = "Setup typstwriter package and templates",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterPackageStatus", function()
-    package.show_status()
-  end, {
-    desc = "Show package installation status",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterInstallPackage", function()
-    package.install_package()
-  end, {
-    desc = "Install typstwriter package to XDG data directory",
-  })
-
-  vim.api.nvim_create_user_command("TypstWriterSetupTemplates", function()
-    package.setup_templates()
-  end, {
-    desc = "Setup templates in template directory",
+    nargs = "*",
+    complete = cli.complete,
+    desc = "TypstWriter - Metadata-driven Typst writing system",
   })
 end
 
@@ -118,7 +70,7 @@ function M.setup_keymaps()
       vim.keymap.set(
         "n",
         keymaps.compile,
-        compiler.compile_current,
+        document.compile_current,
         vim.tbl_extend("force", opts, { desc = "Compile Typst to PDF" })
       )
     end
@@ -127,7 +79,7 @@ function M.setup_keymaps()
       vim.keymap.set(
         "n",
         keymaps.open_pdf,
-        compiler.open_pdf,
+        document.open_pdf,
         vim.tbl_extend("force", opts, { desc = "Open Typst PDF" })
       )
     end
@@ -136,7 +88,7 @@ function M.setup_keymaps()
       vim.keymap.set(
         "n",
         keymaps.compile_and_open,
-        compiler.compile_and_open,
+        document.compile_and_open,
         vim.tbl_extend("force", opts, { desc = "Compile and open PDF" })
       )
     end
@@ -165,7 +117,7 @@ function M.check_requirements()
 
   -- Check if package is installed
   if not package.is_package_installed() then
-    utils.notify("typstwriter package not installed. Run :TypstWriterSetup to install.", vim.log.levels.WARN)
+    utils.notify("typstwriter package not installed. Run :TypstWriter setup to install.", vim.log.levels.WARN)
   end
 end
 
@@ -222,7 +174,7 @@ end
 
 -- Export public API
 M.templates = templates
-M.compiler = compiler
+M.document = document
 M.config = config
 M.utils = utils
 M.package = package

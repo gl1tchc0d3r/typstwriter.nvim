@@ -72,7 +72,7 @@ function M.show_status()
 
   if not status.package_installed then
     print("⚠️  Package not installed at XDG location.")
-    print("   Run :TypstWriterSetup to install with fonts and XDG compliance.")
+    print("   Run :TypstWriter setup to install with fonts and XDG compliance.")
   else
     print("✅ XDG package system ready!")
     print("📁 Package includes bundled fonts (" .. "32MB" .. ")")

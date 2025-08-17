@@ -80,10 +80,11 @@ EOF
 
 ## Initial Setup
 
-After installation, run the setup command to ensure everything is configured correctly:
+After installation, run the one-time setup and status check:
 
 ```vim
-:TypstWriterStatus
+:TypstWriter setup     " Complete system setup
+:TypstWriter status    " Check system status
 ```
 
 This will check:
@@ -96,14 +97,14 @@ This will check:
 
 1. Create a test document:
    ```vim
-   :TypstWriterNew
+   :TypstWriter new
    ```
 
 2. Select a template and provide a title
 
 3. Compile the document:
    ```vim
-   :TypstWriterBoth
+   :TypstWriter both
    ```
 
 If everything works, you should see a PDF open with your document!
@@ -121,7 +122,7 @@ If everything works, you should see a PDF open with your document!
 
 ### Templates Not Found
 - The plugin will create default templates on first run
-- Check `:TypstWriterStatus` for template directory location
+- Check `:TypstWriter status` for template directory location
 
 ## Next Steps
 

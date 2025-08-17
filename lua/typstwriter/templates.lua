@@ -216,7 +216,7 @@ function M.create_from_template()
         -- Auto-compile if enabled
         if config.get("auto_compile") then
           vim.defer_fn(function()
-            require("typstwriter.compiler").compile_current()
+            require("typstwriter.document").compile_current()
           end, 500)
         end
       end
@@ -295,7 +295,7 @@ function M.install_templates()
   -- Check if package is installed
   local package_installed = paths.check_package_installation()
   if not package_installed then
-    return false, "Package not installed. Run :TypstWriterInstallPackage first."
+    return false, "Package not installed. Run :TypstWriter package install first."
   end
 
   -- Get source templates from plugin

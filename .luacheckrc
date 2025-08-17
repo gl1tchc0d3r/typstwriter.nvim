@@ -24,7 +24,7 @@ read_globals = {
 
 -- Exclude certain patterns from linting
 exclude_files = {
-  "lua/typstwriter/templates/defaults.lua",  -- Generated content
+  -- No generated files to exclude currently
 }
 
 -- Test files configuration
