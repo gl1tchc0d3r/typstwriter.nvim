@@ -1,6 +1,6 @@
 # typstwriter.nvim
 
-> A complete Typst writing system for Neovim - from beautiful templates to intelligent personal knowledge management
+> A metadata-driven Typst writing system for Neovim that serves as a complete terminal-native document creation and knowledge management tool.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/gl1tchc0d3r/typstwriter.nvim/workflows/CI/badge.svg)](https://github.com/gl1tchc0d3r/typstwriter.nvim/actions)
@@ -8,6 +8,16 @@
 [![codecov](https://codecov.io/github/gl1tchc0d3r/typstwriter.nvim/graph/badge.svg?token=J3ZM26AFGP)](https://codecov.io/github/gl1tchc0d3r/typstwriter.nvim)
 [![Neovim](https://img.shields.io/badge/Neovim-0.7+-green.svg)](https://neovim.io)
 [![Typst](https://img.shields.io/badge/Typst-compatible-blue.svg)](https://typst.app)
+
+## 📚 Documentation
+
+**Complete documentation is available at: https://gl1tchc0d3r.github.io/typstwriter.nvim/**
+
+- 📦 **[Installation](https://gl1tchc0d3r.github.io/typstwriter.nvim/installation.html)** - Get up and running quickly
+- ⚙️ **[Configuration](https://gl1tchc0d3r.github.io/typstwriter.nvim/configuration.html)** - Customize to your preferences  
+- 💻 **[Commands](https://gl1tchc0d3r.github.io/typstwriter.nvim/commands.html)** - Available commands and usage
+- 📝 **[Templates](https://gl1tchc0d3r.github.io/typstwriter.nvim/templates.html)** - Working with Typst templates
+- 🔧 **[Development](https://gl1tchc0d3r.github.io/typstwriter.nvim/development.html)** - Contributing and development info
 
 ## Philosophy: Why This Plugin Exists
 
@@ -62,152 +72,59 @@ This is shared in the spirit of true open source: take it, fork it, improve it, 
 
 If you share this philosophy, welcome to the experiment. If you're looking for another Electron app with pretty buttons or guaranteed support, you're in the wrong place.
 
-## Current Features
+## What It Does
 
-### Package-Based Template System
-- **XDG-compliant architecture** - Self-contained typstwriter package with modular components stored in system data directories
-- **Bundled professional fonts** - Complete typography system (~32MB) with Iosevka NF, Hack Nerd Font, and Noto Color Emoji
-- **One-command setup** - `:TypstWriterSetup` installs everything you need in XDG-compliant locations
-- **Cross-platform font support** - Works consistently across Linux, macOS, and Windows without requiring system font installation
-- **Import-based templates** - Templates use structured imports from the installed package system
-- **Core styling library** - Shared typography, themes, and components across all templates
-- **Template validation** - Ensures templates and package structure are properly installed
+**typstwriter.nvim** transforms Typst templates into structured documents using native Typst metadata, providing a complete terminal-native writing system:
 
-### Streamlined Workflow  
-- **One-command document creation** from package-based templates
-- **Integrated compilation** - compile to PDF and open instantly
-- **Smart file naming** - generates clean filenames with metadata integration
-- **Cross-platform** support (Linux, macOS, Windows)
-- **Modern UI integration** with vim.ui.select/input when available
+### Core Features
+- **📝 Template-based document creation** - One command creates professional documents
+- **🎨 Metadata-driven workflow** - Uses native Typst `#metadata()` functions  
+- **📦 Package-based architecture** - Self-contained system with bundled fonts (~32MB)
+- **⚡ Integrated compilation** - Compile to PDF and open with a single keystroke
+- **🔧 Terminal-native** - Everything stays in Neovim, no GUI dependencies
+- **🎯 Cross-platform** - Works on Linux, macOS, and Windows
 
-### Professional Output
-- **Modular styling system** - Core styles, themes, and components in organized package structure
-- **Consistent typography** - Professional font stacks and styling across all documents
-- **Reusable components** - Import specific styling functions and themes as needed
-- **Clean document structure** with proper heading hierarchy and spacing
+### Template System
+- **Professional templates** - Notes, meetings, articles, reports
+- **Consistent styling** - Shared typography and themes across documents
+- **Smart metadata** - Automatic dates, tags, and document properties
+- **Easy customization** - Create your own templates with package imports
 
-## Installation
+## Quick Start
 
-### With [lazy.nvim](https://github.com/folke/lazy.nvim)
+### 1. Install Requirements
+```bash
+# Install Typst binary
+brew install typst          # macOS
+pacman -S typst             # Arch Linux
+# Or download from: https://typst.app
+```
 
+### 2. Install Plugin (lazy.nvim example)
 ```lua
 {
   "gl1tchc0d3r/typstwriter.nvim",
-  branch = "feature/local-package-library", -- Development branch with package system
   ft = "typst",
-  cmd = {
-    "TypstWriterNew",
-    "TypstWriterCompile", 
-    "TypstWriterOpen",
-    "TypstWriterBoth",
-    "TypstWriterStatus",
-    "TypstWriterTemplates",
-    "TypstWriterSetup",
-    "TypstWriterPackageStatus",
-    "TypstWriterInstallPackage",
-    "TypstWriterSetupTemplates"
-  },
-  keys = {
-    { "<leader>Tn", "<cmd>TypstWriterNew<cr>", desc = "New document" },
-    { "<leader>Tc", "<cmd>TypstWriterCompile<cr>", desc = "Compile", ft = "typst" },
-    { "<leader>To", "<cmd>TypstWriterOpen<cr>", desc = "Open PDF", ft = "typst" },
-    { "<leader>Tb", "<cmd>TypstWriterBoth<cr>", desc = "Compile & open", ft = "typst" },
-    { "<leader>Ts", "<cmd>TypstWriterSetup<cr>", desc = "Setup package system" },
-  },
   config = function()
-    require('typstwriter').setup({
-      notes_dir = "~/Documents/notes",
-      template_dir = "~/Documents/notes/templates", -- Templates stored here, package installed in XDG directories
-    })
+    require('typstwriter').setup()
   end
 }
 ```
 
-
-## Configuration
-
-### Default Configuration
-
-```lua
-require('typstwriter').setup({
-  -- Directory settings
-  notes_dir = "~/Documents/notes",
-  template_dir = "~/Documents/notes/templates", -- Templates stored here, package installed in XDG directories
-  
-  -- Template preferences
-  default_template_type = "note",
-  auto_date = true, -- Automatically set date to today in metadata
-  
-  -- Filename generation
-  use_random_suffix = true, -- Add random suffix for uniqueness
-  random_suffix_length = 6, -- Length of random suffix
-  
-  -- Compilation settings
-  auto_compile = false,
-  open_after_compile = true,
-  
-  -- Key mappings (set to false to disable)
-  keymaps = {
-    new_document = "<leader>Tn",
-    compile = "<leader>Tc",
-    open_pdf = "<leader>To", 
-    compile_and_open = "<leader>Tb",
-  },
-  
-  -- Notifications
-  notifications = {
-    enabled = true,
-    level = vim.log.levels.INFO,
-  },
-})
-```
-
-### Custom Configuration Example
-
-```lua
-require('typstwriter').setup({
-  notes_dir = "~/my-notes",
-  template_dir = "~/my-notes/templates", -- Templates stored here, package installed in XDG directories
-  auto_compile = true,
-  use_random_suffix = false, -- Disable random suffixes
-  auto_date = false, -- Don't auto-update dates
-  keymaps = {
-    new_document = "<leader>nn",
-    compile = "<leader>cc",
-    open_pdf = "<leader>oo",
-    compile_and_open = false, -- Disable this keymap
-  }
-})
-```
-
-## Quick Start
-
-### First-Time Setup
-
-After installing the plugin, run the setup command:
-
+### 3. One-Time Setup
 ```vim
-:TypstWriterSetup
+:TypstWriterSetup    " Installs package system and templates
 ```
 
-This will:
-1. Install the typstwriter package to XDG-compliant directories (~/.local/share/nvim/typstwriter/)
-2. Install ready-to-use templates with proper absolute imports
-3. Bundle professional fonts for consistent typography across platforms
-4. Verify everything is working correctly
+### 4. Create Your First Document
+```vim
+:TypstWriterNew      " Choose template, enter title, start writing!
+```
 
-### Package System Overview
 
-The plugin uses an **XDG-compliant package architecture** where:
-- Package and fonts are installed to system data directories (e.g., `~/.local/share/nvim/typstwriter/`)
-- Templates use absolute import paths to the XDG package installation
-- Bundled fonts ensure consistent typography without requiring system font installation
-- Cross-platform compatibility with Linux, macOS, and Windows XDG specifications
-
-## Usage
+## Basic Usage
 
 ### Core Commands
-
 | Command | Description |
 |---------|-------------|
 | `:TypstWriterNew` | Create new document from template |
@@ -215,230 +132,16 @@ The plugin uses an **XDG-compliant package architecture** where:
 | `:TypstWriterOpen` | Open PDF of current document |
 | `:TypstWriterBoth` | Compile and open PDF |
 | `:TypstWriterStatus` | Show system status |
-| `:TypstWriterTemplates` | List available templates |
 
-### Package Management Commands
+### Default Keymaps
+| Key | Action |
+|-----|---------|
+| `<leader>Tn` | Create new document |
+| `<leader>Tc` | Compile to PDF (Typst files only) |
+| `<leader>To` | Open PDF (Typst files only) |
+| `<leader>Tb` | Compile and open (Typst files only) |
 
-| Command | Description |
-|---------|-------------|
-| `:TypstWriterSetup` | Complete package and template setup |
-| `:TypstWriterPackageStatus` | Check package installation status |
-| `:TypstWriterInstallPackage` | Install/update package only |
-| `:TypstWriterSetupTemplates` | Install/update templates only |
-
-### Watch Mode & Auto-Compilation
-
-The plugin supports automatic recompilation when files are saved:
-
-```lua
-require('typstwriter').setup({
-  auto_compile = true,        -- Enable auto-compilation on save
-  open_after_compile = true,  -- Auto-open PDF after compilation
-})
-```
-
-With this configuration:
-- Every time you save a Typst file (`:w`), it automatically recompiles
-- The PDF viewer refreshes to show your changes instantly
-- Perfect for real-time document editing and preview
-
-**Note**: If you're using `TypstWatch` from another plugin (like `typst.vim`), that's separate from this templating plugin but works great alongside it!
-
-### Default Key Mappings
-
-| Key | Mode | Action |
-|-----|------|--------|
-| `<leader>Tn` | Normal | Create new document |
-| `<leader>Tc` | Normal (Typst files) | Compile to PDF |
-| `<leader>To` | Normal (Typst files) | Open PDF |
-| `<leader>Tb` | Normal (Typst files) | Compile and open |
-
-### Basic Workflow
-
-1. **Setup** (first time): Run `:TypstWriterSetup` to install the package system
-2. **Create a new document**: Press `<leader>Tn` or run `:TypstWriterNew`
-3. **Select template**: Choose from available templates
-4. **Enter document title**: Provide a title for your document
-5. **Edit**: The new file opens automatically with proper imports
-6. **Compile**: Press `<leader>Tc` or run `:TypstWriterCompile`
-7. **View**: Press `<leader>To` or run `:TypstWriterOpen` to view the PDF
-
-## Package System Architecture
-
-### Directory Structure
-
-After running `:TypstWriterSetup`, the system creates:
-
-**XDG Package Installation** (e.g., `~/.local/share/nvim/typstwriter/`):
-```
-~/.local/share/nvim/typstwriter/
-├── package/
-│   ├── typst.toml           # Package manifest
-│   ├── lib.typ              # Main library entry point
-│   ├── core/                # Core styling functions
-│   │   ├── base.typ         # Base typography and layout
-│   │   ├── document.typ     # Document structure
-│   │   └── metadata.typ     # Metadata handling
-│   ├── themes/              # Theme definitions
-│   │   ├── academic.typ     # Academic document theme
-│   │   ├── modern.typ       # Modern business theme
-│   │   └── minimal.typ      # Clean minimal theme
-│   └── components/          # Reusable components
-└── fonts/                   # Bundled professional fonts (~32MB)
-    ├── IosevkaNerdFont-Regular.ttf
-    ├── HackNerdFont-Regular.ttf
-    └── NotoColorEmoji.ttf
-```
-
-**Template Directory** (your configured `template_dir`):
-```
-templates/
-├── meeting.typ              # Meeting notes template
-├── note.typ                 # General note template
-├── project.typ              # Project documentation template
-├── article.typ              # Article template
-└── report.typ               # Report template
-```
-
-### Package-Based Templates
-
-Templates use absolute imports from the XDG package installation:
-
-```typst
-#import "/home/user/.local/share/nvim/typstwriter/package/lib.typ": *
-
-#metadata((
-  title: "Document Title",
-  date: "2025-08-16",
-  status: "draft",
-  tags: ("example", "template"),
-))
-
-#show: note_template
-
-= Document Title
-
-Content using consistent styling from the package system with bundled fonts.
-
-== Section with Styled Components
-
-Callouts and other components are imported from the package.
-```
-
-### Creating Custom Templates
-
-1. Create a `.typ` file in your template directory
-2. Import the typstwriter library (paths are automatically set during template creation):
-
-```typst
-#import "/home/user/.local/share/nvim/typstwriter/package/lib.typ": *
-
-#metadata((
-  title: "My Custom Document",
-  type: "custom",
-  date: "2025-08-16",
-  tags: ("custom", "template"),
-))
-
-#show: note_template
-
-= My Custom Document
-
-This template uses the XDG-installed package system with bundled fonts.
-
-== Features
-
-- Professional typography with Iosevka NF and Hack Nerd Font
-- Consistent styling across all documents  
-- Automatic metadata display
-- Cross-platform font compatibility
-```
-
-### Package Components
-
-The XDG-installed typstwriter package provides:
-
-- **Main library** (`lib.typ`): Complete entry point with all functions and templates
-- **Core styles** (`core/base.typ`): Base typography, spacing, and layout with bundled fonts
-- **Document templates** (`core/document.typ`): Note, meeting, and article templates
-- **Metadata handling** (`core/metadata.typ`): Smart metadata parsing and display
-- **Bundled fonts** (`fonts/`): Professional font files (~32MB) for consistent typography
-
-## Requirements
-
-- **Neovim** >= 0.7.0
-- **Typst binary** - Install from [typst.app](https://typst.app) or your package manager
-- **PDF viewer** - Any system PDF viewer (`xdg-open`, `open`, `start`)
-
-### Fonts (Bundled)
-
-Typstwriter includes professional fonts (~32MB) for consistent cross-platform typography:
-- **Iosevka Nerd Font** - Primary proportional and monospace fonts
-- **Hack Nerd Font Mono** - Alternative monospace font with excellent readability
-- **Noto Color Emoji** - Full color emoji support
-
-**No font installation required!** The plugin automatically provides fonts to Typst via the `--font-path` system, ensuring documents render identically across Linux, macOS, and Windows.
-
-## Troubleshooting
-
-### Typst binary not found
-```bash
-# Install Typst
-# On macOS:
-brew install typst
-
-# On Linux (cargo):
-cargo install --git https://github.com/typst/typst --tag v0.10.0 typst-cli
-
-# Or download from: https://github.com/typst/typst/releases
-```
-
-### Check plugin status
-```vim
-:TypstWriterStatus        # Shows compilation status and system requirements
-:TypstWriterPackageStatus # Shows package installation status
-```
-
-### Package not installed
-- Run `:TypstWriterSetup` to install the XDG package system
-- Check `:TypstWriterPackageStatus` for installation status  
-- Package should be installed to `~/.local/share/nvim/typstwriter/` (Linux) or equivalent XDG directories
-
-### Template not found
-- Run `:TypstWriterSetupTemplates` to install templates
-- Check that templates are in the correct directory (`template_dir`)
-- Verify templates have proper absolute imports to XDG directories
-- Run `:TypstWriterTemplates` to list available templates
-
-### Import errors in templates
-- Ensure package is installed with `:TypstWriterPackageStatus`
-- Templates should use absolute imports like `/home/user/.local/share/nvim/typstwriter/package/lib.typ`
-- Import paths are automatically set during template creation
-- Re-run `:TypstWriterSetup` if package needs updating
-
-### Font Issues (Rare)
-
-The bundled font system should work automatically. If you encounter font warnings:
-
-```bash
-# Check if Typst can see the bundled fonts
-typst fonts | grep -E "(Iosevka|Hack|Noto)"
-
-# Should show entries like:
-# - Iosevka NF (bundled)
-# - Hack Nerd Font Mono (bundled) 
-# - Noto Color Emoji (bundled)
-```
-
-If fonts aren't loading:
-1. Check `:TypstWriterPackageStatus` - fonts should be installed to XDG directories
-2. Verify the fonts directory exists: `~/.local/share/nvim/typstwriter/fonts/`
-3. Re-run `:TypstWriterSetup` to reinstall fonts
-4. Font warnings in compilation output are often harmless fallback messages
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+**For detailed configuration, commands, templates, and troubleshooting, see the [complete documentation](https://gl1tchc0d3r.github.io/typstwriter.nvim/).**
 
 ## License
 
