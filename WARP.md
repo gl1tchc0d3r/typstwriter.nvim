@@ -26,7 +26,9 @@ lua/typstwriter/
 ├── utils.lua         # Utility functions (filename generation, system checks)
 ├── package.lua       # XDG package system for fonts and templates
 ├── paths.lua         # Cross-platform path management
-└── linking.lua       # Future: Document linking system
+├── database.lua      # SQLite database connection and schema management
+├── indexing.lua      # Document indexing with metadata extraction
+└── search.lua        # Database-backed document search and discovery
 ```
 
 ### Key Design Patterns
@@ -243,6 +245,22 @@ The plugin uses a unified CLI-style command interface with subcommands, similar 
 - **Intelligent error handling** - helpful messages and suggestions
 - **Future-ready** - designed for upcoming PKS features
 
+### New Database-Backed Commands (Phase 1 Implementation)
+```vim
+:TypstWriter search [query]     " Search documents (supports @tag, status:value, type:value)
+:TypstWriter recent [days]      " Show recently modified documents (default: 7 days)
+:TypstWriter stats              " Show document statistics in floating window
+:TypstWriter refresh            " Refresh document index (incremental)
+:TypstWriter rebuild            " Rebuild document index (full scan)
+```
+
+#### Search Query Syntax
+- `@tag` - Filter by tag/topic (e.g., `@meeting`)
+- `status:value` - Filter by status (e.g., `status:draft`)
+- `type:value` - Filter by document type (e.g., `type:note`)
+- Text search - Search in title, content, and metadata
+- Combined queries - Mix all syntax types: `@project status:todo planning`
+
 
 ### Default Keymaps
 
@@ -262,6 +280,15 @@ The plugin uses a unified CLI-style command interface with subcommands, similar 
 <leader>Tdo    " Open PDF
 <leader>Tdb    " Compile and open
 <leader>Tds    " Document status
+```
+
+#### Search Operations (Always Available)
+```vim
+<leader>TS     " Interactive document search
+<leader>TSr    " Show recent documents
+<leader>TSs    " Show document statistics
+<leader>TSi    " Refresh document index
+<leader>TSI    " Rebuild document index
 ```
 
 ## Future Architecture (PKS Evolution)
@@ -403,6 +430,54 @@ test: add test coverage
 chore: update dependencies
 ```
 
+## Database-Backed PKS System (Phase 1 Implementation)
+
+### Database Architecture
+The plugin now includes a **SQLite-based Personal Knowledge System** foundation:
+
+- **SQLite database**: Located at `notes_dir/database/typstwriter.db`
+- **Document indexing**: Automatic metadata extraction and content caching
+- **Smart sync**: File modification time and content hash-based change detection
+- **Performance**: Database queries replace filesystem scanning for instant results
+- **Future-ready**: Schema designed for AI features (embeddings, semantic search)
+
+### Database Schema (Current)
+```sql
+-- Documents table with rich metadata
+CREATE TABLE documents (
+  id INTEGER PRIMARY KEY,
+  filepath TEXT UNIQUE NOT NULL,
+  title TEXT,
+  type TEXT,
+  status TEXT,
+  date TEXT,
+  modified_time INTEGER,
+  content_hash TEXT,
+  content_preview TEXT,      -- First 2000 chars for search
+  full_content TEXT,         -- Complete content
+  topics TEXT,               -- JSON array of tags/topics
+  entities TEXT,             -- JSON array of entities
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Future: Chunks, tags, and links tables for Phase 2
+```
+
+### Indexing System
+- **Automatic indexing**: Documents indexed on first search if database empty
+- **Incremental updates**: Only re-indexes changed files (by mtime + content hash)
+- **Metadata extraction**: Uses existing `metadata.lua` parser
+- **Content caching**: Full content + preview stored for fast search
+- **Fallback mode**: Graceful fallback to filesystem scanning if database unavailable
+
+### Search Capabilities
+- **Structured queries**: `@tag status:draft type:meeting planning`
+- **Text search**: Searches title, content preview, topics, filepath
+- **Metadata filtering**: Filter by type, status, tags simultaneously
+- **Performance**: Instant results via indexed database queries
+- **Smart display**: Shows status, tags, recency indicators, document type
+
 ## Key Files to Understand
 
 ### Core Implementation
@@ -413,6 +488,12 @@ chore: update dependencies
 - `lua/typstwriter/metadata.lua` - Native Typst metadata parsing
 - `lua/typstwriter/package.lua` - XDG package system
 - `lua/typstwriter/paths.lua` - Cross-platform path management
+
+### Database PKS System (NEW)
+- `lua/typstwriter/database.lua` - SQLite connection, schema, migrations
+- `lua/typstwriter/indexing.lua` - Document indexing with change detection
+- `lua/typstwriter/search.lua` - Database-backed search and document discovery
+- `DATABASE_DESIGN_PLAN.md` - Comprehensive PKS architecture plan
 
 ### Configuration & Testing  
 - `lua/typstwriter/config.lua` - Configuration management
@@ -426,4 +507,90 @@ chore: update dependencies
 - `ROADMAP.md` - Future PKS evolution plans  
 - `TESTING.md` - Testing strategy explanation
 
-This plugin represents a unique approach to terminal-native document creation with strong architectural foundations for future knowledge management capabilities.
+---
+
+# Next Session Guide
+
+## Current Status (as of 2025-01-17)
+
+**✅ Completed: Phase 1.0 Database-Backed Document Discovery**
+- SQLite database system with robust schema
+- Document indexing with metadata extraction
+- Advanced search system with special query syntax
+- CLI integration with beautiful floating windows
+- Keybindings (`<leader>TS` for search, `<leader>TSr` for recent)
+- Graceful fallback to filesystem scanning
+
+**🚀 Current Branch:** `feature/database-pks-system`
+**📊 Recent Progress:** Implemented database foundation, search system, CLI integration
+
+## Next Session Priorities
+
+### 1. **Real-World Testing & Refinement** 🧪
+- Test the search system with actual Typst documents
+- Identify any UX issues or missing functionality
+- Test database performance with larger document collections
+- Validate keybindings and CLI commands work smoothly
+
+### 2. **Link Discovery & Indexing** 🔗 
+**Current Todo:** "Implement link discovery and indexing"
+- Parse document content for `[[Document Name]]`, `@references`, `#link()` calls
+- Populate `document_links` table for bidirectional relationships
+- Enable backlink discovery and graph generation preparation
+
+### 3. **Enhanced Search Features** 🔍
+**Current Todo:** "Create database-backed search system" (extend)
+- Add full-text search capabilities (SQLite FTS)
+- Implement search result ranking and scoring
+- Add search history and saved searches
+
+### 4. **Auto-Sync & Maintenance** 🔄
+**Current Todo:** "Add database maintenance and sync"
+- Auto-sync on file changes (via autocmd/file watchers)
+- Cleanup stale database entries for deleted files
+- Database repair and optimization tools
+
+## Files to Start With Next Session
+
+1. **Test the current system:** Try `<leader>TS` and `:TypstWriter search`
+2. **Review todos:** `read_todos` to see remaining Phase 1 tasks
+3. **Check status:** Verify database creation and indexing work
+4. **Plan links:** Review `DATABASE_DESIGN_PLAN.md` for link schema design
+
+## Commands for Next Session Testing
+
+```vim
+" Test basic search functionality
+:TypstWriter search
+:TypstWriter recent
+:TypstWriter stats
+
+" Test keybindings
+<leader>TS      " Interactive search
+<leader>TSr     " Recent documents  
+<leader>TSs     " Statistics
+
+" Test advanced search syntax
+:TypstWriter search @meeting
+:TypstWriter search status:draft
+:TypstWriter search type:note planning
+```
+
+## Expected Issues to Address
+
+- **lsqlite3 dependency**: May need installation instructions
+- **First-run experience**: Database creation and initial indexing
+- **Error handling**: Database connection failures, missing directories
+- **Performance**: Large document collections, indexing speed
+- **UI/UX**: Search result display, picker behavior
+
+## Success Metrics
+
+- ✅ Search finds documents instantly
+- ✅ Keybindings work smoothly  
+- ✅ Database auto-creates and indexes documents
+- ✅ Advanced query syntax works (`@tag status:value`)
+- ✅ Graceful fallback when database unavailable
+- ✅ No errors in `:TypstWriter help`
+
+This plugin now has a solid foundation for evolving into a comprehensive Personal Knowledge System with database-backed performance and rich metadata capabilities.
