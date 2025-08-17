@@ -1,0 +1,59 @@
+title: "typstwriter.nvim"
+description: "A metadata-driven Typst writing system for Neovim"
+baseurl: "/typstwriter.nvim"
+url: "https://gl1tchc0d3r.github.io"
+
+# Theme - clean and minimal
+theme: jekyll-theme-minimal
+
+# GitHub integration
+github:
+  repository_nwo: "gl1tchc0d3r/typstwriter.nvim"
+  repository_url: "https://github.com/gl1tchc0d3r/typstwriter.nvim"
+
+# Navigation structure
+header_pages:
+  - installation.md
+  - configuration.md
+  - commands.md
+  - templates.md
+  - development.md
+
+# Plugins (GitHub Pages automatically enables these)
+plugins:
+  - jekyll-default-layout
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-titles-from-headings
+  - jekyll-relative-links
+  - jekyll-github-metadata
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
+
+# File processing
+include:
+  - _pages
+  - assets
+
+exclude:
+  - "*.tmp"
+  - "*.bak"
+  - .DS_Store
+
+# SEO and metadata
+author: "gl1tchc0d3r"
+social:
+  github: "gl1tchc0d3r"
+
+# Show downloads section
+show_downloads: true
+
+# Custom site settings
+timezone: "UTC"
