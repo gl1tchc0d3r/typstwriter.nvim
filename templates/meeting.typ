@@ -3,6 +3,7 @@
 #metadata((
   type: "meeting",
   title: "Meeting Title",
+  date: "2025-01-01",
   status: "scheduled",
   tags: (),
   duration: "60min",

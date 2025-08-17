@@ -3,6 +3,7 @@
 #metadata((
   type: "guide",
   title: "Guide Title",
+  date: "2025-01-01",
   status: "draft",
   tags: (),
   category: "general",

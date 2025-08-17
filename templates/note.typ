@@ -3,6 +3,7 @@
 #metadata((
   type: "note",
   title: "Note Title",
+  date: "2025-01-01",
   status: "active",
   tags: (),
   category: "general",

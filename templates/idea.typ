@@ -3,7 +3,8 @@
 #metadata((
   type: "idea",
   title: "Idea Title",
-  status: "brainstorm",
+  date: "2025-01-01",
+  status: "concept",
   tags: (),
   category: "general",
   maturity: "concept",

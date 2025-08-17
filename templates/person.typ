@@ -3,6 +3,7 @@
 #metadata((
   type: "person",
   title: "Person Name",
+  date: "2025-01-01",
   status: "active",
   tags: (),
   email: "",
