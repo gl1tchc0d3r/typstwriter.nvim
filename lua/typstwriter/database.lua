@@ -116,14 +116,8 @@ function M.init()
     end
   end
 
-  -- Create database file if it doesn't exist
-  if vim.fn.filereadable(db_path) == 0 then
-    local _, success = exec_sql(".quit") -- This will create empty database
-    if not success then
-      utils.notify("Failed to create database file: " .. db_path, vim.log.levels.ERROR)
-      return false
-    end
-  end
+  -- Create schema (this will create the database file if it doesn't exist)
+  M.ensure_schema()
 
   -- Configure SQLite for better performance
   local pragmas = {
@@ -140,9 +134,6 @@ function M.init()
       utils.notify("Failed to configure database: " .. pragma, vim.log.levels.WARN)
     end
   end
-
-  -- Create schema if needed
-  M.ensure_schema()
 
   utils.notify("Database initialized: " .. db_path, vim.log.levels.DEBUG)
   return true
