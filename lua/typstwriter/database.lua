@@ -47,7 +47,7 @@ local function detect_sqlite3()
   return nil
 end
 
---- Execute SQLite command
+--- Execute SQLite command using temporary file approach
 --- @param sql string SQL command to execute
 --- @param db_path string|nil Database path (uses default if nil)
 --- @return string|nil Output from sqlite3 command
@@ -59,12 +59,23 @@ local function exec_sql(sql, db_path)
 
   db_path = db_path or M.get_database_path()
 
-  -- Escape SQL for shell
-  local escaped_sql = sql:gsub('"', '\\"')
-  local cmd = string.format('%s "%s" "%s" 2>&1', sqlite3_bin, db_path, escaped_sql)
+  -- Create temporary file for complex SQL commands
+  local temp_sql_file = vim.fn.tempname() .. ".sql"
+  local file = io.open(temp_sql_file, "w")
+  if not file then
+    return nil, false
+  end
 
+  file:write(sql)
+  file:close()
+
+  -- Execute SQL using file input to avoid shell escaping issues
+  local cmd = string.format('%s "%s" < "%s" 2>&1', sqlite3_bin, db_path, temp_sql_file)
   local output = vim.fn.system(cmd)
   local success = vim.v.shell_error == 0
+
+  -- Clean up temporary file
+  vim.fn.delete(temp_sql_file)
 
   return output, success
 end
