@@ -28,10 +28,10 @@ M.defaults = {
   -- Database settings
   database = {
     enabled = true,
-    filename = "typstwriter.db",     -- Database filename
-    auto_create = true,              -- Create database if doesn't exist
-    backup_enabled = true,           -- Enable automatic backups
-    backup_count = 5,                -- Number of backups to keep
+    filename = "typstwriter.db", -- Database filename
+    auto_create = true, -- Create database if doesn't exist
+    backup_enabled = true, -- Enable automatic backups
+    backup_count = 5, -- Number of backups to keep
   },
 
   -- Key mappings following CLI command structure

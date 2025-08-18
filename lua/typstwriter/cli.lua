@@ -141,7 +141,7 @@ function M.show_help(path)
       "📝 Document Operations:",
       "  new [template] [title]     Create new document from template",
       "  compile                    Compile current document to PDF",
-      "  open                      Open PDF of current document", 
+      "  open                      Open PDF of current document",
       "  both                      Compile and open PDF of current document",
       "",
       "🔍 Search & Discovery:",
@@ -168,7 +168,7 @@ function M.show_help(path)
       "",
       "Use ':TypstWriter help <command>' for detailed help on specific commands",
     }
-    
+
     utils.show_in_float("TypstWriter Help", help_lines)
   else
     -- Show specific command help
@@ -230,7 +230,6 @@ function M.setup()
 
   -- Document search and discovery (database-backed)
   M.register_command("search", function(args, opts)
-    local search = require("typstwriter.search")
     local query = table.concat(args, " ")
     if query == "" then
       utils.input({ prompt = "Search documents: " }, function(input_query)
@@ -242,7 +241,7 @@ function M.setup()
       M.execute_search(query)
     end
   end, { desc = "Search documents by content, tags, or metadata" })
-  
+
   M.register_command("recent", function(args, opts)
     local search = require("typstwriter.search")
     local days = tonumber(args[1]) or 7
@@ -254,11 +253,11 @@ function M.setup()
     end, recent_docs)
     M.show_document_results(filtered, string.format("Recent (%d days)", days))
   end, { desc = "Show recently modified documents" })
-  
+
   M.register_command("stats", function(args, opts)
     M.show_document_stats()
   end, { desc = "Show document statistics" })
-  
+
   M.register_command("refresh", function(args, opts)
     local search = require("typstwriter.search")
     utils.notify("Refreshing document index...", vim.log.levels.INFO)
@@ -272,7 +271,7 @@ function M.setup()
       utils.notify("Index is up to date", vim.log.levels.INFO)
     end
   end, { desc = "Refresh document index" })
-  
+
   M.register_command("rebuild", function(args, opts)
     local confirm = vim.fn.confirm("Rebuild entire document index?", "&Yes\n&No", 2)
     if confirm ~= 1 then
@@ -297,28 +296,27 @@ end
 --- @param query string Search query with special syntax
 function M.execute_search(query)
   local search = require("typstwriter.search")
-  
+
   -- Parse query for special syntax
   local search_opts = {}
-  local search_terms = {}
-  
+
   -- Parse @tag syntax
   for tag in query:gmatch("@(%w+)") do
     search_opts.has_tag = tag
   end
-  
-  -- Parse status:value syntax  
+
+  -- Parse status:value syntax
   local status_match = query:match("status:(%w+)")
   if status_match then
     search_opts.status = status_match
   end
-  
+
   -- Parse type:value syntax
   local type_match = query:match("type:(%w+)")
   if type_match then
     search_opts.type = type_match
   end
-  
+
   -- Extract remaining terms for text search
   local text_query = query
     :gsub("@%w+", "") -- Remove @tag
@@ -326,7 +324,7 @@ function M.execute_search(query)
     :gsub("type:%w+", "") -- Remove type:value
     :gsub("%s+", " ") -- Clean up spaces
     :match("^%s*(.-)%s*$") -- Trim
-  
+
   -- Perform search
   local results
   if text_query and text_query ~= "" then
@@ -334,12 +332,12 @@ function M.execute_search(query)
   else
     results = search.get_all_documents(search_opts)
   end
-  
+
   if #results == 0 then
     utils.notify(string.format("No documents found for query: %s", query), vim.log.levels.WARN)
     return
   end
-  
+
   M.show_document_results(results, string.format("Search: %s", query))
 end
 
@@ -351,27 +349,29 @@ function M.show_document_results(docs, title)
     utils.notify("No documents to show", vim.log.levels.WARN)
     return
   end
-  
+
   if #docs == 1 then
     -- Single result, open directly
     M.open_document(docs[1])
     return
   end
-  
+
   -- Multiple results, show picker
   local search = require("typstwriter.search")
   local choices = {}
   local doc_map = {}
-  
+
   for _, doc in ipairs(docs) do
     local display = search.format_document_display(doc)
     table.insert(choices, display)
     doc_map[display] = doc
   end
-  
+
   utils.select(choices, {
     prompt = title or "Select document:",
-    format_item = function(item) return item end,
+    format_item = function(item)
+      return item
+    end,
   }, function(choice)
     if choice and doc_map[choice] then
       M.open_document(doc_map[choice])
@@ -386,13 +386,13 @@ function M.open_document(doc)
     utils.notify("Invalid document", vim.log.levels.ERROR)
     return
   end
-  
+
   -- Check if file exists
   if vim.fn.filereadable(doc.filepath) == 0 then
     utils.notify("Document file not found: " .. doc.filepath, vim.log.levels.ERROR)
     return
   end
-  
+
   -- Open the document
   vim.cmd("edit " .. vim.fn.fnameescape(doc.filepath))
   utils.notify("Opened: " .. (doc.title or doc.filename), vim.log.levels.INFO)
@@ -402,7 +402,7 @@ end
 function M.show_document_stats()
   local search = require("typstwriter.search")
   local stats = search.get_document_stats()
-  
+
   local lines = {
     "📊 Document Statistics",
     "═══════════════════",
@@ -412,19 +412,19 @@ function M.show_document_stats()
     "📁 By Type:",
     "─────────",
   }
-  
+
   for doc_type, count in pairs(stats.by_type) do
     table.insert(lines, string.format("  %-20s %d", doc_type, count))
   end
-  
+
   table.insert(lines, "")
   table.insert(lines, "📋 By Status:")
   table.insert(lines, "──────────")
-  
+
   for status, count in pairs(stats.by_status) do
     table.insert(lines, string.format("  %-20s %d", status, count))
   end
-  
+
   -- Show using the floating window utility
   utils.show_in_float("Document Statistics", lines)
 end

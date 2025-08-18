@@ -12,62 +12,66 @@ local utils = require("typstwriter.utils")
 --- @return table List of documents with metadata
 function M.get_all_documents(opts)
   opts = opts or {}
-  
+
   -- Ensure database is initialized
   if not database.is_enabled() then
     utils.notify("Database not enabled, falling back to basic document discovery", vim.log.levels.WARN)
     return M.get_documents_fallback()
   end
-  
+
   local db_success = database.init()
   if not db_success then
     utils.notify("Database initialization failed, falling back to basic document discovery", vim.log.levels.WARN)
     return M.get_documents_fallback()
   end
-  
+
   -- Get documents from database
   local documents = indexing.get_all_documents()
-  
+
   -- If no documents in database, try to auto-index
   if #documents == 0 then
     utils.notify("No documents in database, running auto-index...", vim.log.levels.INFO)
-    local success_count, failure_count = indexing.sync_filesystem()
+    local success_count, _ = indexing.sync_filesystem()
     if success_count > 0 then
       documents = indexing.get_all_documents()
       utils.notify(string.format("Auto-indexed %d documents", success_count), vim.log.levels.INFO)
     end
   end
-  
+
   -- Apply filtering if specified
   if opts.type then
-    documents = vim.tbl_filter(function(doc) return doc.type == opts.type end, documents)
+    documents = vim.tbl_filter(function(doc)
+      return doc.type == opts.type
+    end, documents)
   end
-  
+
   if opts.status then
-    documents = vim.tbl_filter(function(doc) return doc.status == opts.status end, documents)
+    documents = vim.tbl_filter(function(doc)
+      return doc.status == opts.status
+    end, documents)
   end
-  
+
   if opts.has_tag then
-    documents = vim.tbl_filter(function(doc) 
+    documents = vim.tbl_filter(function(doc)
       return doc.topics and vim.tbl_contains(doc.topics, opts.has_tag)
     end, documents)
   end
-  
+
   -- Apply sorting
   local sort_field = opts.sort or "updated_at"
   local sort_desc = opts.desc ~= false -- Default to descending
-  
+
   table.sort(documents, function(a, b)
     local val_a = a[sort_field] or ""
     local val_b = b[sort_field] or ""
-    
+
     if sort_desc then
       return val_a > val_b
     else
       return val_a < val_b
     end
   end)
-  
+
   return documents
 end
 
@@ -86,7 +90,7 @@ function M.get_documents_fallback()
   local typ_files = vim.fn.glob(notes_dir .. "/**/*.typ", false, true)
 
   local metadata_parser = require("typstwriter.metadata")
-  
+
   for _, filepath in ipairs(typ_files) do
     local doc_metadata = metadata_parser.parse_metadata(filepath)
     if doc_metadata then
@@ -127,30 +131,30 @@ end
 --- @return table Matching documents
 function M.search_documents(query, opts)
   opts = opts or {}
-  
+
   if not query or query == "" then
     return M.get_all_documents(opts)
   end
-  
+
   local documents = M.get_all_documents(opts)
   local results = {}
   local query_lower = query:lower()
-  
+
   for _, doc in ipairs(documents) do
     local matches = false
-    
+
     -- Search in title
     if doc.title and doc.title:lower():find(query_lower, 1, true) then
       matches = true
     end
-    
+
     -- Search in content preview
     if not matches and doc.content_preview then
       if doc.content_preview:lower():find(query_lower, 1, true) then
         matches = true
       end
     end
-    
+
     -- Search in topics/tags
     if not matches and doc.topics then
       for _, topic in ipairs(doc.topics) do
@@ -160,19 +164,19 @@ function M.search_documents(query, opts)
         end
       end
     end
-    
+
     -- Search in filepath
     if not matches then
       if doc.filepath:lower():find(query_lower, 1, true) then
         matches = true
       end
     end
-    
+
     if matches then
       table.insert(results, doc)
     end
   end
-  
+
   return results
 end
 
@@ -202,13 +206,13 @@ end
 --- @return table|nil Document metadata or nil if not found
 function M.get_document_by_path(filepath)
   local documents = M.get_all_documents()
-  
+
   for _, doc in ipairs(documents) do
     if doc.filepath == filepath then
       return doc
     end
   end
-  
+
   return nil
 end
 
@@ -218,28 +222,28 @@ end
 function M.get_document_by_title(title)
   local documents = M.get_all_documents()
   local title_lower = title:lower()
-  
+
   -- First try exact match
   for _, doc in ipairs(documents) do
     if doc.title and doc.title:lower() == title_lower then
       return doc
     end
   end
-  
+
   -- Then try fuzzy match
   for _, doc in ipairs(documents) do
     if doc.title and doc.title:lower():find(title_lower, 1, true) then
       return doc
     end
   end
-  
+
   -- Finally try filename match
   for _, doc in ipairs(documents) do
     if doc.basename and doc.basename:lower():find(title_lower, 1, true) then
       return doc
     end
   end
-  
+
   return nil
 end
 
@@ -268,7 +272,7 @@ function M.format_document_display(doc)
   if doc.type and doc.type ~= "document" then
     table.insert(display_parts, string.format("(%s)", doc.type))
   end
-  
+
   -- Date indicator for recently modified
   if doc.updated_at then
     local days_ago = math.floor((os.time() - doc.updated_at) / 86400)
@@ -286,32 +290,32 @@ end
 --- @return table Statistics about documents in the database
 function M.get_document_stats()
   local documents = M.get_all_documents()
-  
+
   local stats = {
     total_count = #documents,
     by_type = {},
     by_status = {},
     recent_count = 0, -- Last 7 days
   }
-  
+
   local now = os.time()
   local week_ago = now - (7 * 24 * 60 * 60)
-  
+
   for _, doc in ipairs(documents) do
     -- Count by type
     local doc_type = doc.type or "document"
     stats.by_type[doc_type] = (stats.by_type[doc_type] or 0) + 1
-    
+
     -- Count by status
     local status = doc.status or "draft"
     stats.by_status[status] = (stats.by_status[status] or 0) + 1
-    
+
     -- Count recent documents
     if doc.updated_at and doc.updated_at >= week_ago then
       stats.recent_count = stats.recent_count + 1
     end
   end
-  
+
   return stats
 end
 
@@ -322,7 +326,7 @@ function M.refresh_index()
     utils.notify("Database not enabled, cannot refresh index", vim.log.levels.WARN)
     return 0, 0
   end
-  
+
   utils.notify("Refreshing document index...", vim.log.levels.INFO)
   return indexing.sync_filesystem()
 end
@@ -334,7 +338,7 @@ function M.rebuild_index()
     utils.notify("Database not enabled, cannot rebuild index", vim.log.levels.WARN)
     return 0, 0
   end
-  
+
   utils.notify("Rebuilding document index...", vim.log.levels.INFO)
   return indexing.rebuild_index()
 end
